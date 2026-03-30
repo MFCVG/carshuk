@@ -447,7 +447,7 @@ export default function ListingDetail() {
                     {/* External links */}
                     <div className="flex gap-3">
                       <a
-                        href={`https://www.carfax.com/vehicle/${listing.vin || `${listing.year}-${listing.make}-${listing.model}`}`}
+                        href={`https://www.carfax.com/VehicleHistory/p/Report.cfx?vin=${listing.vin}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1.5 text-xs text-primary hover:underline"
@@ -455,7 +455,7 @@ export default function ListingDetail() {
                         <ExternalLink className="h-3 w-3" /> Carfax Report
                       </a>
                       <a
-                        href={`https://www.autocheck.com/vehiclehistory/search?vin=${listing.vin || ""}`}
+                        href={`https://www.autocheck.com/vehiclehistory/autocheck/en/search-by-vin?vin=${listing.vin}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1.5 text-xs text-primary hover:underline"
