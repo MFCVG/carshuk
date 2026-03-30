@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, Moon, Sun, User, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, Moon, Sun, LogOut, LayoutDashboard, Car } from "lucide-react";
 import { useState } from "react";
 
 function CarShukLogo({ className = "" }: { className?: string }) {
@@ -55,6 +55,10 @@ export default function Header() {
     { href: "/sell", label: "Sell My Car" },
   ];
 
+  if (user) {
+    navLinks.push({ href: "/dashboard", label: "My Listings" });
+  }
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
@@ -75,20 +79,6 @@ export default function Header() {
                 </span>
               </Link>
             ))}
-            {user && (
-              <Link href="/dashboard">
-                <span
-                  data-testid="link-nav-dashboard"
-                  className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                    location === "/dashboard"
-                      ? "text-primary bg-primary/8"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  Dashboard
-                </span>
-              </Link>
-            )}
           </nav>
         </div>
 
@@ -172,20 +162,6 @@ export default function Header() {
                     </span>
                   </Link>
                 ))}
-                {user && (
-                  <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
-                    <span
-                      data-testid="link-mobile-dashboard"
-                      className={`block px-3 py-2.5 text-sm font-medium rounded-md transition-colors ${
-                        location === "/dashboard"
-                          ? "text-primary bg-primary/8"
-                          : "text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      Dashboard
-                    </span>
-                  </Link>
-                )}
                 <div className="my-2 border-t border-border" />
                 {user ? (
                   <button

@@ -8,11 +8,49 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth-context";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Car, Trash2, Heart, Search, Plus, ExternalLink, MapPin, Gauge } from "lucide-react";
+import { formatPrice, formatMiles, getDealRating, estimateMarketValue } from "@/lib/deal-utils";
+import { Car, Trash2, Heart, Search, Plus, ExternalLink, MapPin, Gauge, Eye } from "lucide-react";
 import type { Listing, SavedSearch, Favorite } from "@shared/schema";
+import { useMemo } from "react";
 
-function formatPrice(p: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(p);
+function ListingRow({ listing }: { listing: Listing }) {
+  const estimated = useMemo(
+    () => estimateMarketValue(listing.make, listing.year, listing.mileage, listing.condition),
+    [listing.make, listing.year, listing.mileage, listing.condition]
+  );
+  const deal = useMemo(() => getDealRating(listing.price, estimated), [listing.price, estimated]);
+
+  return (
+    <Card className="p-4 flex items-center gap-4" data-testid={`card-my-listing-${listing.id}`}>
+      <div className="h-16 w-24 shrink-0 rounded-lg bg-gradient-to-br from-primary/10 via-muted to-muted/80 flex items-center justify-center overflow-hidden">
+        <Car className="h-7 w-7 text-muted-foreground/25" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <Link href={`/listings/${listing.id}`}>
+          <span className="text-sm font-semibold text-foreground hover:text-primary transition-colors cursor-pointer">
+            {listing.title}
+          </span>
+        </Link>
+        <div className="flex flex-wrap items-center gap-2 mt-1.5">
+          <span className="text-sm font-bold text-foreground tabular-nums">{formatPrice(listing.price)}</span>
+          <span
+            className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold text-white"
+            style={{ backgroundColor: deal.color }}
+          >
+            {deal.label}
+          </span>
+        </div>
+        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1"><Gauge className="h-3 w-3" />{formatMiles(listing.mileage)}</span>
+          {listing.city && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{listing.city}, {listing.state}</span>}
+          {(listing.views ?? 0) > 0 && <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{listing.views} views</span>}
+        </div>
+      </div>
+      <Badge variant={listing.status === "active" ? "default" : "secondary"} className="capitalize shrink-0">
+        {listing.status}
+      </Badge>
+    </Card>
+  );
 }
 
 export default function Dashboard() {
@@ -46,7 +84,6 @@ export default function Dashboard() {
     },
   });
 
-  // Get listing details for favorites
   const favListingIds = favorites?.map((f) => f.listingId) || [];
   const { data: favListings } = useQuery<Listing[]>({
     queryKey: ["/api/listings", "favorites", favListingIds.join(",")],
@@ -114,6 +151,22 @@ export default function Dashboard() {
         </Link>
       </div>
 
+      {/* Quick stats */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <Card className="p-4 text-center">
+          <p className="text-lg font-bold text-foreground">{myListings?.length || 0}</p>
+          <p className="text-xs text-muted-foreground">My Listings</p>
+        </Card>
+        <Card className="p-4 text-center">
+          <p className="text-lg font-bold text-foreground">{favorites?.length || 0}</p>
+          <p className="text-xs text-muted-foreground">Favorites</p>
+        </Card>
+        <Card className="p-4 text-center">
+          <p className="text-lg font-bold text-foreground">{savedSearches?.length || 0}</p>
+          <p className="text-xs text-muted-foreground">Saved Searches</p>
+        </Card>
+      </div>
+
       <Tabs defaultValue="listings">
         <TabsList className="mb-5">
           <TabsTrigger value="listings" data-testid="tab-my-listings">
@@ -131,7 +184,7 @@ export default function Dashboard() {
         <TabsContent value="listings">
           {loadingListings ? (
             <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}
+              {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-lg" />)}
             </div>
           ) : !myListings?.length ? (
             <Card className="p-8 text-center">
@@ -146,26 +199,7 @@ export default function Dashboard() {
           ) : (
             <div className="space-y-3">
               {myListings.map((listing) => (
-                <Card key={listing.id} className="p-4 flex items-center gap-4" data-testid={`card-my-listing-${listing.id}`}>
-                  <div className="h-14 w-20 shrink-0 rounded-md bg-gradient-to-br from-primary/15 to-muted flex items-center justify-center">
-                    <Car className="h-6 w-6 text-muted-foreground/40" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <Link href={`/listings/${listing.id}`}>
-                      <span className="text-sm font-semibold text-foreground hover:text-primary transition-colors cursor-pointer">
-                        {listing.title}
-                      </span>
-                    </Link>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                      <span className="font-medium text-primary">{formatPrice(listing.price)}</span>
-                      <span className="flex items-center gap-1"><Gauge className="h-3 w-3" />{Number(listing.mileage).toLocaleString()} mi</span>
-                      {listing.city && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{listing.city}, {listing.state}</span>}
-                    </div>
-                  </div>
-                  <Badge variant={listing.status === "active" ? "default" : "secondary"} className="capitalize shrink-0">
-                    {listing.status}
-                  </Badge>
-                </Card>
+                <ListingRow key={listing.id} listing={listing} />
               ))}
             </div>
           )}
@@ -175,7 +209,7 @@ export default function Dashboard() {
         <TabsContent value="favorites">
           {loadingFavs ? (
             <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}
+              {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-lg" />)}
             </div>
           ) : !favorites?.length ? (
             <Card className="p-8 text-center">
@@ -189,8 +223,8 @@ export default function Dashboard() {
             <div className="space-y-3">
               {favListings?.map((listing) => (
                 <Card key={listing.id} className="p-4 flex items-center gap-4" data-testid={`card-fav-${listing.id}`}>
-                  <div className="h-14 w-20 shrink-0 rounded-md bg-gradient-to-br from-primary/15 to-muted flex items-center justify-center">
-                    <Car className="h-6 w-6 text-muted-foreground/40" />
+                  <div className="h-14 w-20 shrink-0 rounded-md bg-gradient-to-br from-primary/10 to-muted flex items-center justify-center">
+                    <Car className="h-6 w-6 text-muted-foreground/25" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <Link href={`/listings/${listing.id}`}>
@@ -222,7 +256,7 @@ export default function Dashboard() {
         <TabsContent value="searches">
           {loadingSearches ? (
             <div className="space-y-3">
-              {Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
+              {Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}
             </div>
           ) : !savedSearches?.length ? (
             <Card className="p-8 text-center">

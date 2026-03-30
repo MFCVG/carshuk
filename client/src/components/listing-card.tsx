@@ -1,93 +1,94 @@
 import { Link } from "wouter";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { Car, MapPin, Gauge, Calendar } from "lucide-react";
+import { useMemo } from "react";
+import { Heart, MapPin, Car } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { getDealRating, getMonthlyPayment, formatPrice, formatMiles, estimateMarketValue } from "@/lib/deal-utils";
 import type { Listing } from "@shared/schema";
 
-function daysAgo(dateStr: string): string {
-  if (!dateStr) return "Recently";
-  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
-  if (diff === 0) return "Today";
-  if (diff === 1) return "1 day ago";
-  return `${diff} days ago`;
-}
-
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(price);
-}
-
-function formatMileage(miles: number): string {
-  return new Intl.NumberFormat("en-US").format(miles) + " mi";
-}
-
-// Generate a deterministic color from the listing id for the placeholder
-const placeholderColors = [
-  "from-primary/20 to-primary/5",
-  "from-emerald-100 to-emerald-50 dark:from-emerald-900/30 dark:to-emerald-900/10",
-  "from-slate-200 to-slate-100 dark:from-slate-800 dark:to-slate-700",
-  "from-blue-100 to-blue-50 dark:from-blue-900/30 dark:to-blue-900/10",
-  "from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-900/10",
-];
-
 export default function ListingCard({ listing }: { listing: Listing }) {
-  const colorClass = placeholderColors[listing.id % placeholderColors.length];
+  const estimatedValue = useMemo(
+    () => estimateMarketValue(listing.make, listing.year, listing.mileage, listing.condition),
+    [listing.make, listing.year, listing.mileage, listing.condition]
+  );
+  const deal = useMemo(
+    () => getDealRating(listing.price, estimatedValue),
+    [listing.price, estimatedValue]
+  );
+  const monthly = useMemo(() => getMonthlyPayment(listing.price), [listing.price]);
 
   return (
-    <Link href={`/listings/${listing.id}`}>
-      <Card
-        data-testid={`card-listing-${listing.id}`}
-        className="group overflow-hidden border border-border bg-card transition-shadow hover:shadow-md cursor-pointer"
-      >
-        {/* Image placeholder */}
-        <div className={`relative aspect-[16/10] bg-gradient-to-br ${colorClass} flex items-center justify-center`}>
-          <Car className="h-10 w-10 text-muted-foreground/40" />
-          <div className="absolute top-2 right-2 flex gap-1.5">
-            <Badge
-              variant={listing.sellerType === "dealer" ? "default" : "secondary"}
-              className="text-[11px] px-1.5 py-0"
-              data-testid={`badge-seller-${listing.id}`}
-            >
-              {listing.sellerType === "dealer" ? "Dealer" : "Private"}
-            </Badge>
-          </div>
-        </div>
+    <div
+      data-testid={`card-listing-${listing.id}`}
+      className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow hover:shadow-md"
+    >
+      {/* Image area — ~55% of card */}
+      <div className="relative aspect-[16/10] bg-gradient-to-br from-primary/10 via-muted to-muted/80 flex items-center justify-center overflow-hidden">
+        <Car className="h-12 w-12 text-muted-foreground/20" />
 
-        {/* Content */}
-        <div className="p-3.5">
-          <p className="text-base font-semibold text-foreground leading-snug line-clamp-1 group-hover:text-primary transition-colors" data-testid={`text-title-${listing.id}`}>
-            {listing.title}
+        {/* Deal badge — bottom left */}
+        <span
+          className="absolute bottom-2 left-2 inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm"
+          style={{ backgroundColor: deal.color }}
+          data-testid={`badge-deal-${listing.id}`}
+        >
+          {deal.label}
+        </span>
+
+        {/* Seller badge — top right */}
+        <span className="absolute top-2 right-10 rounded-md bg-black/50 backdrop-blur-sm px-2 py-0.5 text-[10px] font-medium text-white">
+          {listing.sellerType === "dealer" ? "Dealer" : "Private"}
+        </span>
+
+        {/* Heart icon — top right */}
+        <button
+          className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 transition-colors"
+          data-testid={`button-save-${listing.id}`}
+          onClick={(e) => e.preventDefault()}
+        >
+          <Heart className="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="flex flex-1 flex-col p-3.5">
+        <Link href={`/listings/${listing.id}`}>
+          <h3
+            className="text-sm font-bold text-foreground leading-snug group-hover:text-primary transition-colors cursor-pointer"
+            data-testid={`text-title-${listing.id}`}
+          >
+            {listing.year} {listing.make} {listing.model}
+          </h3>
+        </Link>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          {listing.trim && `${listing.trim} · `}{formatMiles(listing.mileage)}
+        </p>
+
+        {listing.city && listing.state && (
+          <p className="mt-1.5 text-xs text-muted-foreground flex items-center gap-1">
+            <MapPin className="h-3 w-3 shrink-0" />
+            {listing.city}, {listing.state}
           </p>
+        )}
 
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
-              <Gauge className="h-3 w-3" />
-              {formatMileage(listing.mileage)}
-            </span>
-            {listing.bodyType && (
-              <span className="inline-flex items-center gap-1">
-                <Car className="h-3 w-3" />
-                {listing.bodyType}
-              </span>
-            )}
-            {listing.city && listing.state && (
-              <span className="inline-flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
-                {listing.city}, {listing.state}
-              </span>
-            )}
-          </div>
-
-          <div className="mt-3 flex items-end justify-between">
-            <span className="text-lg font-bold text-primary" data-testid={`text-price-${listing.id}`}>
-              {formatPrice(listing.price)}
-            </span>
-            <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              {daysAgo(listing.createdAt)}
-            </span>
-          </div>
+        <div className="mt-auto pt-3">
+          <p className="text-lg font-bold text-foreground tabular-nums" data-testid={`text-price-${listing.id}`}>
+            {formatPrice(listing.price)}
+          </p>
+          <p className="text-xs text-muted-foreground tabular-nums">
+            ${monthly.toLocaleString()}/mo est.
+          </p>
         </div>
-      </Card>
-    </Link>
+
+        <Link href={`/listings/${listing.id}`}>
+          <Button
+            variant="default"
+            className="mt-3 w-full text-xs h-9"
+            data-testid={`button-availability-${listing.id}`}
+          >
+            Check Availability
+          </Button>
+        </Link>
+      </div>
+    </div>
   );
 }

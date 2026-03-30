@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -6,14 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth-context";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Loader2, CheckCircle2, Search, ArrowLeft, ArrowRight, DollarSign } from "lucide-react";
+import {
+  Loader2, CheckCircle2, Search, ArrowLeft, ArrowRight, DollarSign,
+  Car, Cog, Shield, Factory, Zap, Database,
+} from "lucide-react";
 import type { VinDecodeResult, PriceEstimate } from "@shared/schema";
 
 const bodyTypes = ["Sedan", "SUV", "Truck", "Minivan", "Coupe", "Convertible", "Hatchback", "Wagon"];
@@ -73,6 +76,181 @@ function FormField({ label, children }: { label: string; children: React.ReactNo
   );
 }
 
+function SafetyCheck({ label, value }: { label: string; value: string }) {
+  if (!value || value === "" || value === "Not Applicable") return null;
+  return (
+    <div className="flex items-center gap-2">
+      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+      <span className="text-xs text-foreground">{label}</span>
+    </div>
+  );
+}
+
+function VinDecodeCard({ data }: { data: VinDecodeResult }) {
+  // Count non-empty fields
+  const dataPoints = Object.values(data).filter((v) => v && v !== "" && v !== "0").length;
+
+  const safetyFeatures = [
+    { label: "ABS", value: data.abs },
+    { label: "ESC", value: data.esc },
+    { label: "Traction Control", value: data.tractionControl },
+    { label: "Front Airbags", value: data.airbagFront },
+    { label: "Side Airbags", value: data.airbagSide },
+    { label: "Curtain Airbags", value: data.airbagCurtain },
+    { label: "Forward Collision Warning", value: data.forwardCollisionWarning },
+    { label: "Lane Departure Warning", value: data.laneDepartureWarning },
+    { label: "Lane Keep Assist", value: data.laneKeepAssist },
+    { label: "Adaptive Cruise Control", value: data.adaptiveCruise },
+    { label: "Backup Camera", value: data.backupCamera },
+    { label: "Blind Spot Monitoring", value: data.blindSpotMonitoring },
+  ].filter((f) => f.value && f.value !== "" && f.value !== "Not Applicable");
+
+  const engineDisplay = [
+    data.engineSize,
+    data.engineCylinders ? `${data.engineCylinders}-cyl` : "",
+    data.engineHP ? `${data.engineHP} HP` : "",
+  ].filter(Boolean).join(" · ");
+
+  const plantDisplay = [data.plantCity, data.plantState, data.plantCountry].filter(Boolean).join(", ");
+
+  return (
+    <div className="mt-4 rounded-lg border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50/50 dark:bg-emerald-900/10 overflow-hidden" data-testid="vin-decode-card">
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-emerald-200/60 dark:border-emerald-800/30 bg-emerald-100/50 dark:bg-emerald-900/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Vehicle Identified</p>
+              <p className="text-base font-bold text-foreground">
+                {data.year} {data.make} {data.model}
+              </p>
+            </div>
+          </div>
+          {data.vehicleType && (
+            <Badge variant="secondary" className="text-xs">{data.vehicleType}</Badge>
+          )}
+        </div>
+      </div>
+
+      <div className="p-4 space-y-4">
+        {/* Powertrain */}
+        {(engineDisplay || data.transmission || data.drivetrain || data.fuelType) && (
+          <div>
+            <div className="flex items-center gap-1.5 mb-2">
+              <Cog className="h-3.5 w-3.5 text-muted-foreground" />
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Powertrain</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {engineDisplay && (
+                <div className="rounded-md bg-white dark:bg-card p-2">
+                  <p className="text-[10px] text-muted-foreground">Engine</p>
+                  <p className="text-xs font-medium text-foreground">{engineDisplay}</p>
+                </div>
+              )}
+              {data.transmission && (
+                <div className="rounded-md bg-white dark:bg-card p-2">
+                  <p className="text-[10px] text-muted-foreground">Transmission</p>
+                  <p className="text-xs font-medium text-foreground">{data.transmission}</p>
+                </div>
+              )}
+              {data.drivetrain && (
+                <div className="rounded-md bg-white dark:bg-card p-2">
+                  <p className="text-[10px] text-muted-foreground">Drivetrain</p>
+                  <p className="text-xs font-medium text-foreground">{data.drivetrain}</p>
+                </div>
+              )}
+              {data.fuelType && (
+                <div className="rounded-md bg-white dark:bg-card p-2">
+                  <p className="text-[10px] text-muted-foreground">Fuel Type</p>
+                  <p className="text-xs font-medium text-foreground">{data.fuelType}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Specifications */}
+        {(data.doors || data.seats || data.bodyType) && (
+          <div>
+            <div className="flex items-center gap-1.5 mb-2">
+              <Car className="h-3.5 w-3.5 text-muted-foreground" />
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Specifications</p>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {data.doors && (
+                <div className="rounded-md bg-white dark:bg-card p-2">
+                  <p className="text-[10px] text-muted-foreground">Doors</p>
+                  <p className="text-xs font-medium text-foreground">{data.doors}</p>
+                </div>
+              )}
+              {data.seats && (
+                <div className="rounded-md bg-white dark:bg-card p-2">
+                  <p className="text-[10px] text-muted-foreground">Seats</p>
+                  <p className="text-xs font-medium text-foreground">{data.seats}</p>
+                </div>
+              )}
+              {data.bodyType && (
+                <div className="rounded-md bg-white dark:bg-card p-2">
+                  <p className="text-[10px] text-muted-foreground">Body Type</p>
+                  <p className="text-xs font-medium text-foreground">{data.bodyType}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Safety Features */}
+        {safetyFeatures.length > 0 && (
+          <div>
+            <div className="flex items-center gap-1.5 mb-2">
+              <Shield className="h-3.5 w-3.5 text-muted-foreground" />
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Safety Features</p>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              {safetyFeatures.map((f) => (
+                <SafetyCheck key={f.label} label={f.label} value={f.value} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Manufacturing */}
+        {(plantDisplay || data.manufacturer) && (
+          <div>
+            <div className="flex items-center gap-1.5 mb-2">
+              <Factory className="h-3.5 w-3.5 text-muted-foreground" />
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Manufacturing</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {plantDisplay && (
+                <div className="rounded-md bg-white dark:bg-card p-2">
+                  <p className="text-[10px] text-muted-foreground">Plant</p>
+                  <p className="text-xs font-medium text-foreground">{plantDisplay}</p>
+                </div>
+              )}
+              {data.manufacturer && (
+                <div className="rounded-md bg-white dark:bg-card p-2">
+                  <p className="text-[10px] text-muted-foreground">Manufacturer</p>
+                  <p className="text-xs font-medium text-foreground">{data.manufacturer}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Data points count */}
+        <div className="flex items-center gap-1.5 pt-1">
+          <Database className="h-3.5 w-3.5 text-primary" />
+          <p className="text-xs text-primary font-medium" data-testid="text-data-points">
+            Found {dataPoints} data points for this vehicle
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CreateListing() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
@@ -80,6 +258,7 @@ export default function CreateListing() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormData>(defaultForm);
   const [vinDecoded, setVinDecoded] = useState(false);
+  const [vinData, setVinData] = useState<VinDecodeResult | null>(null);
   const [priceEstimate, setPriceEstimate] = useState<PriceEstimate | null>(null);
 
   const set = (key: keyof FormData) => (val: string | boolean) =>
@@ -102,9 +281,9 @@ export default function CreateListing() {
         drivetrain: data.drivetrain || f.drivetrain,
         fuelType: data.fuelType || f.fuelType,
         engineSize: data.engineSize || f.engineSize,
-        exteriorColor: data.exteriorColor || f.exteriorColor,
       }));
       setVinDecoded(true);
+      setVinData(data);
       toast({ title: "VIN decoded", description: `${data.year} ${data.make} ${data.model}` });
     },
     onError: (err: Error) => {
@@ -221,14 +400,12 @@ export default function CreateListing() {
               Decode VIN
             </Button>
           </div>
-          {vinDecoded && (
-            <div className="mt-4 rounded-md bg-emerald-50 dark:bg-emerald-900/20 p-3 flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              <span className="text-sm text-emerald-700 dark:text-emerald-300">
-                VIN decoded: {form.year} {form.make} {form.model}
-              </span>
-            </div>
+
+          {/* Rich VIN decode card */}
+          {vinDecoded && vinData && (
+            <VinDecodeCard data={vinData} />
           )}
+
           <div className="mt-6 flex justify-end gap-3">
             <Button variant="outline" onClick={() => setStep(2)} data-testid="button-skip-vin">
               Skip
@@ -420,7 +597,7 @@ export default function CreateListing() {
               <p className="text-lg font-bold text-foreground">
                 {form.year} {form.make} {form.model} {form.trim}
               </p>
-              <p className="text-xl font-bold text-primary mt-1">${Number(form.price).toLocaleString()}</p>
+              <p className="text-xl font-bold text-primary mt-1 tabular-nums">${Number(form.price).toLocaleString()}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">

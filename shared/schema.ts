@@ -84,7 +84,7 @@ export type InsertSavedSearch = z.infer<typeof insertSavedSearchSchema>;
 export type Favorite = typeof favorites.$inferSelect;
 export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
 
-// VIN decode response type
+// VIN decode response type — expanded with ALL NHTSA fields
 export interface VinDecodeResult {
   make: string;
   model: string;
@@ -95,7 +95,34 @@ export interface VinDecodeResult {
   drivetrain: string;
   fuelType: string;
   engineSize: string;
-  exteriorColor: string;
+  engineCylinders: string;
+  engineHP: string;
+  doors: string;
+  seats: string;
+  vehicleType: string;
+  manufacturer: string;
+  plantCity: string;
+  plantState: string;
+  plantCountry: string;
+  // Safety features
+  abs: string;
+  esc: string;
+  tractionControl: string;
+  airbagFront: string;
+  airbagSide: string;
+  airbagCurtain: string;
+  forwardCollisionWarning: string;
+  laneDepartureWarning: string;
+  laneKeepAssist: string;
+  adaptiveCruise: string;
+  backupCamera: string;
+  blindSpotMonitoring: string;
+  // Other
+  steeringLocation: string;
+  entertainmentSystem: string;
+  gvwr: string;
+  errorCode: string;
+  errorText: string;
 }
 
 // Price estimation type
@@ -104,4 +131,14 @@ export interface PriceEstimate {
   lowPrice: number;
   highPrice: number;
   confidence: string;
+}
+
+// Deal rating type
+export type DealRating = "Great Deal" | "Good Deal" | "Fair Deal" | "Above Market";
+
+export interface DealRatingInfo {
+  label: DealRating;
+  color: string;
+  bgColor: string;
+  description: string;
 }

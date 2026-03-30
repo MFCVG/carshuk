@@ -5,17 +5,22 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import ListingCard from "@/components/listing-card";
-import { Search, ShieldCheck, Users, Zap, ArrowRight, MapPin, ChevronRight } from "lucide-react";
+import {
+  Search, ShieldCheck, Users, Zap, ArrowRight, MapPin, ChevronRight,
+  BarChart3, Star, Car,
+} from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import type { Listing } from "@shared/schema";
 
+const makes = ["Toyota", "Honda", "BMW", "Mercedes-Benz", "Tesla", "Ford", "Chevrolet", "Jeep", "Hyundai", "Lexus", "Audi", "Kia", "Nissan", "Subaru", "Mazda"];
+
 const locations = [
-  { name: "Brooklyn", state: "NY", zip: "11230" },
-  { name: "Lakewood", state: "NJ", zip: "08701" },
-  { name: "Monsey", state: "NY", zip: "10952" },
-  { name: "Passaic", state: "NJ", zip: "07055" },
-  { name: "Five Towns", state: "NY", zip: "11516" },
+  { name: "Brooklyn", state: "NY", count: 4 },
+  { name: "Lakewood", state: "NJ", count: 3 },
+  { name: "Monsey", state: "NY", count: 2 },
+  { name: "Passaic", state: "NJ", count: 2 },
+  { name: "Five Towns", state: "NY", count: 1 },
 ];
 
 const steps = [
@@ -43,49 +48,80 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90 dark:from-primary/90 dark:via-primary/80 dark:to-primary/70 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-teal-700 dark:from-primary/90 dark:via-primary/80 dark:to-teal-800 text-white">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.08),transparent_60%)]" />
-        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:py-24">
+        <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="max-w-2xl">
             <h1 className="text-xl font-bold leading-tight sm:text-xl" data-testid="text-hero-title">
               Find your next car, without the runaround.
             </h1>
             <p className="mt-3 text-sm text-white/80 leading-relaxed max-w-lg">
-              CarShuk connects buyers and sellers directly. Browse local inventory from private sellers and dealers — no buyer fees, ever.
+              Browse thousands of cars from trusted sellers and dealers in your community
             </p>
           </div>
 
-          {/* Search bar */}
-          <div className="mt-8 flex flex-col sm:flex-row items-stretch gap-3 max-w-2xl">
-            <Select value={searchMake} onValueChange={setSearchMake}>
-              <SelectTrigger
-                className="bg-white/95 text-foreground border-0 h-11 flex-1 sm:max-w-[200px]"
-                data-testid="select-hero-make"
+          {/* Search widget — white elevated card */}
+          <div className="mt-8 rounded-xl bg-white dark:bg-card p-4 shadow-lg max-w-2xl">
+            <div className="flex flex-col sm:flex-row items-stretch gap-3">
+              <Select value={searchMake} onValueChange={setSearchMake}>
+                <SelectTrigger
+                  className="border-border h-11 flex-1 text-foreground"
+                  data-testid="select-hero-make"
+                >
+                  <SelectValue placeholder="Any Make" />
+                </SelectTrigger>
+                <SelectContent>
+                  {makes.map((m) => (
+                    <SelectItem key={m} value={m}>{m}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                placeholder="ZIP Code"
+                value={searchZip}
+                onChange={(e) => setSearchZip(e.target.value)}
+                className="border-border h-11 flex-1 sm:max-w-[160px] text-foreground"
+                data-testid="input-hero-zip"
+              />
+              <Button
+                onClick={handleSearch}
+                size="lg"
+                className="h-11 font-semibold gap-2"
+                data-testid="button-hero-search"
               >
-                <SelectValue placeholder="Any Make" />
-              </SelectTrigger>
-              <SelectContent>
-                {["Toyota", "Honda", "BMW", "Mercedes-Benz", "Tesla", "Ford", "Chevrolet", "Jeep", "Hyundai", "Lexus", "Audi"].map((m) => (
-                  <SelectItem key={m} value={m}>{m}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Input
-              placeholder="ZIP Code"
-              value={searchZip}
-              onChange={(e) => setSearchZip(e.target.value)}
-              className="bg-white/95 text-foreground border-0 h-11 flex-1 sm:max-w-[160px]"
-              data-testid="input-hero-zip"
-            />
-            <Button
-              onClick={handleSearch}
-              size="lg"
-              className="h-11 bg-white text-primary hover:bg-white/90 font-semibold gap-2"
-              data-testid="button-hero-search"
-            >
-              <Search className="h-4 w-4" />
-              Search
-            </Button>
+                <Search className="h-4 w-4" />
+                Search Cars
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stat counters */}
+      <section className="border-b border-border bg-card">
+        <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6">
+          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-16 text-center">
+            <div className="flex items-center gap-2">
+              <Car className="h-5 w-5 text-primary" />
+              <div>
+                <p className="text-base font-bold text-foreground" data-testid="stat-listings">500+</p>
+                <p className="text-xs text-muted-foreground">Active Listings</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              <div>
+                <p className="text-base font-bold text-foreground" data-testid="stat-dealers">200+</p>
+                <p className="text-xs text-muted-foreground">Verified Dealers</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-primary" />
+              <div>
+                <p className="text-base font-bold text-foreground" data-testid="stat-rating">4.9★</p>
+                <p className="text-xs text-muted-foreground">Community Rating</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -122,37 +158,58 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* Value Props */}
+      {/* Why CarShuk — asymmetric 2-column */}
       <section className="bg-muted/40 border-y border-border">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
-          <h2 className="text-lg font-bold text-foreground mb-8" data-testid="text-why-carshuk">Why CarShuk?</h2>
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-            <div>
-              <div className="text-primary mb-2">
-                <ShieldCheck className="h-6 w-6" strokeWidth={1.75} />
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-5">
+            {/* Left — visual */}
+            <div className="lg:col-span-2">
+              <div className="aspect-[4/3] rounded-xl bg-gradient-to-br from-primary/15 to-muted flex items-center justify-center">
+                <div className="text-center">
+                  <BarChart3 className="h-12 w-12 text-primary/40 mx-auto mb-3" />
+                  <p className="text-sm font-semibold text-foreground">Transparent Pricing</p>
+                  <p className="text-xs text-muted-foreground mt-1">Every listing includes a deal rating</p>
+                </div>
               </div>
-              <h3 className="text-sm font-semibold text-foreground">No buyer fees</h3>
-              <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
-                Browse and buy without hidden costs. We never charge buyers a penny.
-              </p>
             </div>
-            <div>
-              <div className="text-primary mb-2">
-                <Users className="h-6 w-6" strokeWidth={1.75} />
+            {/* Right — stacked value props */}
+            <div className="lg:col-span-3 space-y-6">
+              <h2 className="text-lg font-bold text-foreground" data-testid="text-why-carshuk">Why CarShuk?</h2>
+              <div className="space-y-5">
+                <div className="flex gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <ShieldCheck className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">No buyer fees</h3>
+                    <p className="mt-0.5 text-sm text-muted-foreground leading-relaxed">
+                      Browse and buy without hidden costs. We never charge buyers a penny.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Users className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">No middleman</h3>
+                    <p className="mt-0.5 text-sm text-muted-foreground leading-relaxed">
+                      Deal directly with sellers. Transparent pricing, real conversations, faster transactions.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Zap className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">New listings daily</h3>
+                    <p className="mt-0.5 text-sm text-muted-foreground leading-relaxed">
+                      Fresh inventory added every day from private sellers and local dealers you can trust.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-sm font-semibold text-foreground">No middleman</h3>
-              <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
-                Deal directly with sellers. Transparent pricing, real conversations, faster transactions.
-              </p>
-            </div>
-            <div>
-              <div className="text-primary mb-2">
-                <Zap className="h-6 w-6" strokeWidth={1.75} />
-              </div>
-              <h3 className="text-sm font-semibold text-foreground">New listings daily</h3>
-              <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
-                Fresh inventory added every day from private sellers and local dealers you can trust.
-              </p>
             </div>
           </div>
         </div>
@@ -167,13 +224,13 @@ export default function HomePage() {
             <Link key={loc.name} href={`/browse?city=${encodeURIComponent(loc.name)}`}>
               <div
                 data-testid={`card-location-${loc.name.toLowerCase().replace(/\s/g, "-")}`}
-                className="group rounded-lg border border-border p-4 transition-colors hover:border-primary/40 hover:bg-primary/3 cursor-pointer"
+                className="group rounded-lg border border-border p-4 transition-all hover:border-primary/40 hover:shadow-sm cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-primary shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{loc.name}</p>
-                    <p className="text-xs text-muted-foreground">{loc.state}</p>
+                    <p className="text-xs text-muted-foreground">{loc.state} · {loc.count} listings</p>
                   </div>
                 </div>
               </div>
@@ -182,15 +239,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* How It Works — horizontal flow */}
       <section className="bg-muted/40 border-y border-border">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
           <h2 className="text-lg font-bold text-foreground mb-8" data-testid="text-how-it-works">How It Works</h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-            {steps.map((s) => (
+            {steps.map((s, i) => (
               <div key={s.step} className="flex gap-4">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                  {s.step}
+                <div className="flex flex-col items-center">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                    {s.step}
+                  </div>
+                  {i < steps.length - 1 && (
+                    <div className="hidden sm:block w-px flex-1 bg-border mt-2" />
+                  )}
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">{s.title}</h3>

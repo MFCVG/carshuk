@@ -4,22 +4,30 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth-context";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import {
-  Car, Heart, MapPin, Gauge, Calendar, Shield, AlertTriangle,
-  CheckCircle2, Phone, ArrowLeft, Eye, User as UserIcon,
+  getDealRating, getMonthlyPayment, formatPrice, formatMiles, estimateMarketValue,
+} from "@/lib/deal-utils";
+import {
+  Car, Heart, MapPin, Gauge, Shield, AlertTriangle,
+  CheckCircle2, Phone, ArrowLeft, Eye, Fuel, Cog,
+  Palette, CircleDot, Camera, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import type { Listing, PriceEstimate } from "@shared/schema";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
-function formatPrice(p: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(p);
-}
-function formatMiles(m: number) {
-  return new Intl.NumberFormat("en-US").format(m) + " mi";
+function SpecIcon({ icon, label, value }: { icon: JSX.Element; label: string; value: string | number | null | undefined }) {
+  if (!value) return null;
+  return (
+    <div className="flex flex-col items-center text-center p-3 rounded-lg bg-muted/50">
+      <div className="text-primary mb-1.5">{icon}</div>
+      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="text-xs font-semibold text-foreground mt-0.5 leading-tight">{value}</p>
+    </div>
+  );
 }
 
 function DetailRow({ label, value }: { label: string; value: string | number | null | undefined }) {
@@ -32,24 +40,24 @@ function DetailRow({ label, value }: { label: string; value: string | number | n
   );
 }
 
-function PriceBar({ estimate }: { estimate: PriceEstimate }) {
+function PriceBar({ estimate, price }: { estimate: PriceEstimate; price: number }) {
   const range = estimate.highPrice - estimate.lowPrice;
-  const pos = range > 0 ? ((estimate.estimatedPrice - estimate.lowPrice) / range) * 100 : 50;
+  const pos = range > 0 ? ((price - estimate.lowPrice) / range) * 100 : 50;
   return (
     <div className="mt-3">
       <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
         <span>{formatPrice(estimate.lowPrice)}</span>
         <span>{formatPrice(estimate.highPrice)}</span>
       </div>
-      <div className="relative h-2 rounded-full bg-muted overflow-hidden">
+      <div className="relative h-2.5 rounded-full bg-muted overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 via-yellow-400 to-red-400 rounded-full" />
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-foreground border-2 border-background shadow"
-          style={{ left: `calc(${Math.min(Math.max(pos, 5), 95)}% - 6px)` }}
+          className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-foreground border-2 border-background shadow-md"
+          style={{ left: `calc(${Math.min(Math.max(pos, 5), 95)}% - 7px)` }}
         />
       </div>
-      <p className="mt-2 text-sm text-foreground">
-        Estimated value: <span className="font-semibold text-primary">{formatPrice(estimate.estimatedPrice)}</span>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Estimated market value: <span className="font-semibold text-foreground">{formatPrice(estimate.estimatedPrice)}</span>
         <Badge variant="outline" className="ml-2 text-[10px]">{estimate.confidence} confidence</Badge>
       </p>
     </div>
@@ -98,6 +106,13 @@ export default function ListingDetail() {
     }
   }, [favorites, id]);
 
+  const deal = useMemo(() => {
+    if (!listing || !estimate) return null;
+    return getDealRating(listing.price, estimate.estimatedPrice);
+  }, [listing, estimate]);
+
+  const monthly = useMemo(() => listing ? getMonthlyPayment(listing.price) : 0, [listing]);
+
   const favMut = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Sign in to save favorites");
@@ -119,7 +134,7 @@ export default function ListingDetail() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 space-y-6">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 space-y-6">
         <Skeleton className="h-6 w-48" />
         <Skeleton className="aspect-[16/9] w-full rounded-xl" />
         <div className="grid grid-cols-2 gap-4">
@@ -141,7 +156,7 @@ export default function ListingDetail() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
       {/* Breadcrumb */}
       <Link href="/browse">
         <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 cursor-pointer" data-testid="link-back-browse">
@@ -149,38 +164,166 @@ export default function ListingDetail() {
         </span>
       </Link>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-        {/* Left: Image + details */}
-        <div className="lg:col-span-3 space-y-5">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Left column — 2/3 */}
+        <div className="lg:col-span-2 space-y-5">
           {/* Image gallery placeholder */}
-          <div className="aspect-[16/9] rounded-xl bg-gradient-to-br from-primary/15 to-muted flex items-center justify-center">
-            <Car className="h-16 w-16 text-muted-foreground/30" />
+          <div className="relative aspect-[16/9] rounded-xl bg-gradient-to-br from-primary/10 via-muted to-muted/80 flex items-center justify-center overflow-hidden">
+            <Car className="h-20 w-20 text-muted-foreground/20" />
+            {/* Photo count badge */}
+            <div className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-md bg-black/50 backdrop-blur-sm px-2.5 py-1 text-xs text-white">
+              <Camera className="h-3.5 w-3.5" />
+              0 Photos
+            </div>
+            {/* Nav arrows */}
+            <button className="absolute left-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50">
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50">
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
 
-          {/* Vehicle specs */}
-          <Card className="p-5">
-            <h3 className="text-sm font-semibold text-foreground mb-3" data-testid="text-vehicle-details">Vehicle Details</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
-              <DetailRow label="Year" value={listing.year} />
-              <DetailRow label="Make" value={listing.make} />
-              <DetailRow label="Model" value={listing.model} />
-              <DetailRow label="Trim" value={listing.trim} />
-              <DetailRow label="Body Type" value={listing.bodyType} />
-              <DetailRow label="Exterior Color" value={listing.exteriorColor} />
-              <DetailRow label="Interior Color" value={listing.interiorColor} />
-              <DetailRow label="Transmission" value={listing.transmission} />
-              <DetailRow label="Drivetrain" value={listing.drivetrain} />
-              <DetailRow label="Fuel Type" value={listing.fuelType} />
-              <DetailRow label="Engine" value={listing.engineSize} />
-              <DetailRow label="Mileage" value={formatMiles(listing.mileage)} />
-              <DetailRow label="Condition" value={listing.condition} />
-            </div>
-          </Card>
+          {/* Title (mobile) */}
+          <div className="lg:hidden">
+            <h1 className="text-xl font-bold text-foreground" data-testid="text-listing-title-mobile">
+              {listing.title}
+            </h1>
+            <p className="text-lg font-bold text-primary mt-1 tabular-nums">{formatPrice(listing.price)}</p>
+          </div>
+
+          {/* Vehicle Overview — icon grid */}
+          <div className="grid grid-cols-4 gap-2" data-testid="spec-grid">
+            <SpecIcon icon={<Gauge className="h-5 w-5" />} label="Mileage" value={formatMiles(listing.mileage)} />
+            <SpecIcon icon={<Car className="h-5 w-5" />} label="Body" value={listing.bodyType} />
+            <SpecIcon icon={<Cog className="h-5 w-5" />} label="Drivetrain" value={listing.drivetrain} />
+            <SpecIcon icon={<Cog className="h-5 w-5" />} label="Transmission" value={listing.transmission} />
+            <SpecIcon icon={<Fuel className="h-5 w-5" />} label="Fuel" value={listing.fuelType} />
+            <SpecIcon icon={<Cog className="h-5 w-5" />} label="Engine" value={listing.engineSize} />
+            <SpecIcon icon={<Palette className="h-5 w-5" />} label="Exterior" value={listing.exteriorColor} />
+            <SpecIcon icon={<CircleDot className="h-5 w-5" />} label="Interior" value={listing.interiorColor} />
+          </div>
+
+          {/* Tabbed content */}
+          <Tabs defaultValue="overview">
+            <TabsList className="w-full justify-start" data-testid="detail-tabs">
+              <TabsTrigger value="overview" data-testid="tab-overview">Overview</TabsTrigger>
+              <TabsTrigger value="features" data-testid="tab-features">Features</TabsTrigger>
+              <TabsTrigger value="history" data-testid="tab-history">Vehicle History</TabsTrigger>
+              <TabsTrigger value="price" data-testid="tab-price">Price Analysis</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview">
+              <Card className="p-5">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Vehicle Specifications</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+                  <DetailRow label="Year" value={listing.year} />
+                  <DetailRow label="Make" value={listing.make} />
+                  <DetailRow label="Model" value={listing.model} />
+                  <DetailRow label="Trim" value={listing.trim} />
+                  <DetailRow label="Body Type" value={listing.bodyType} />
+                  <DetailRow label="Exterior Color" value={listing.exteriorColor} />
+                  <DetailRow label="Interior Color" value={listing.interiorColor} />
+                  <DetailRow label="Transmission" value={listing.transmission} />
+                  <DetailRow label="Drivetrain" value={listing.drivetrain} />
+                  <DetailRow label="Fuel Type" value={listing.fuelType} />
+                  <DetailRow label="Engine" value={listing.engineSize} />
+                  <DetailRow label="Mileage" value={formatMiles(listing.mileage)} />
+                  <DetailRow label="Condition" value={listing.condition} />
+                  <DetailRow label="VIN" value={listing.vin} />
+                </div>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="features">
+              <Card className="p-5">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Features & Equipment</h3>
+                {listing.description ? (
+                  <p className="text-sm text-muted-foreground leading-relaxed">{listing.description}</p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No feature details available.</p>
+                )}
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="history">
+              <Card className="p-5">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Vehicle History</h3>
+                {listing.vin && (
+                  <div className="rounded-md bg-muted p-3 mb-4">
+                    <p className="text-xs text-muted-foreground">VIN</p>
+                    <p className="text-sm font-mono font-medium text-foreground tracking-wide" data-testid="text-vin">
+                      {listing.vin}
+                    </p>
+                  </div>
+                )}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                      <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Owners</p>
+                      <p className="text-xs text-muted-foreground">{listing.numOwners ?? "—"} previous owner(s)</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                      listing.accidentHistory ? "bg-red-100 dark:bg-red-900/30" : "bg-emerald-100 dark:bg-emerald-900/30"
+                    }`}>
+                      {listing.accidentHistory ? (
+                        <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                      ) : (
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Accidents</p>
+                      <p className="text-xs text-muted-foreground">{listing.accidentHistory ? "Accidents reported" : "No accidents reported"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+                      <Shield className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Title Status</p>
+                      <p className="text-xs text-muted-foreground capitalize">{listing.titleStatus || "Clean"}</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="price">
+              <Card className="p-5">
+                <h3 className="text-sm font-semibold text-foreground" data-testid="text-price-analysis">Price Analysis</h3>
+                {estimate ? (
+                  <>
+                    <PriceBar estimate={estimate} price={listing.price} />
+                    {deal && (
+                      <div className="mt-4 flex items-center gap-2">
+                        <span
+                          className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold text-white"
+                          style={{ backgroundColor: deal.color }}
+                        >
+                          {deal.label}
+                        </span>
+                        <span className="text-xs text-muted-foreground">{deal.description}</span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="mt-3 text-sm text-muted-foreground">Loading price analysis...</p>
+                )}
+              </Card>
+            </TabsContent>
+          </Tabs>
 
           {/* Description */}
           {listing.description && (
             <Card className="p-5">
-              <h3 className="text-sm font-semibold text-foreground mb-2">Description</h3>
+              <h3 className="text-sm font-semibold text-foreground mb-2">Seller's Description</h3>
               <p className="text-sm text-muted-foreground leading-relaxed" data-testid="text-description">
                 {listing.description}
               </p>
@@ -188,45 +331,43 @@ export default function ListingDetail() {
           )}
         </div>
 
-        {/* Right sidebar */}
-        <div className="lg:col-span-2 space-y-4">
-          {/* Price + title card */}
-          <Card className="p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h1 className="text-xl font-bold text-foreground leading-tight" data-testid="text-listing-title">
-                  {listing.title}
-                </h1>
-                <div className="mt-1.5 flex items-center gap-2 text-sm text-muted-foreground">
-                  {listing.city && listing.state && (
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin className="h-3.5 w-3.5" />
-                      {listing.city}, {listing.state}
-                    </span>
-                  )}
-                  <span className="inline-flex items-center gap-1">
-                    <Gauge className="h-3.5 w-3.5" />
-                    {formatMiles(listing.mileage)}
-                  </span>
-                </div>
-              </div>
-              <Button
-                variant={isFav ? "default" : "outline"}
-                size="icon"
-                onClick={() => favMut.mutate()}
-                disabled={favMut.isPending}
-                className="shrink-0 h-9 w-9"
-                data-testid="button-favorite"
-              >
-                <Heart className={`h-4 w-4 ${isFav ? "fill-current" : ""}`} />
-              </Button>
+        {/* Right sidebar — 1/3 */}
+        <div className="space-y-4">
+          {/* Price card */}
+          <Card className="p-5 sticky top-20">
+            <h1 className="hidden lg:block text-lg font-bold text-foreground leading-tight" data-testid="text-listing-title">
+              {listing.title}
+            </h1>
+            {listing.city && listing.state && (
+              <p className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
+                <MapPin className="h-3 w-3" /> {listing.city}, {listing.state}
+              </p>
+            )}
+
+            <div className="mt-4">
+              <p className="text-xl font-bold text-foreground tabular-nums" data-testid="text-detail-price">
+                {formatPrice(listing.price)}
+              </p>
+              <p className="text-xs text-muted-foreground tabular-nums mt-0.5">
+                Est. ${monthly.toLocaleString()}/mo
+              </p>
             </div>
 
-            <p className="mt-4 text-xl font-bold text-primary" data-testid="text-detail-price">
-              {formatPrice(listing.price)}
-            </p>
+            {/* Deal badge */}
+            {deal && (
+              <div className="mt-3 flex items-center gap-2">
+                <span
+                  className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold text-white"
+                  style={{ backgroundColor: deal.color }}
+                  data-testid="badge-deal-detail"
+                >
+                  {deal.label}
+                </span>
+                <span className="text-xs text-muted-foreground">{deal.description}</span>
+              </div>
+            )}
 
-            <div className="mt-2 flex items-center gap-2">
+            <div className="mt-4 flex items-center gap-2">
               <Badge variant={listing.sellerType === "dealer" ? "default" : "secondary"} data-testid="badge-seller-type">
                 {listing.sellerType === "dealer" ? "Dealer" : "Private Seller"}
               </Badge>
@@ -236,59 +377,43 @@ export default function ListingDetail() {
                 </span>
               )}
             </div>
+
+            <div className="mt-5 space-y-2">
+              <Button className="w-full gap-2" data-testid="button-contact-seller">
+                <Phone className="h-4 w-4" />
+                Contact Seller
+              </Button>
+              <Button
+                variant={isFav ? "default" : "outline"}
+                className="w-full gap-2"
+                onClick={() => favMut.mutate()}
+                disabled={favMut.isPending}
+                data-testid="button-favorite"
+              >
+                <Heart className={`h-4 w-4 ${isFav ? "fill-current" : ""}`} />
+                {isFav ? "Saved" : "Save"}
+              </Button>
+            </div>
           </Card>
 
-          {/* VIN + History */}
-          {listing.vin && (
-            <Card className="p-5">
-              <h3 className="text-sm font-semibold text-foreground mb-3">Vehicle History</h3>
-              <div className="rounded-md bg-muted p-3 mb-3">
-                <p className="text-xs text-muted-foreground">VIN</p>
-                <p className="text-sm font-mono font-medium text-foreground tracking-wide" data-testid="text-vin">
-                  {listing.vin}
-                </p>
-              </div>
-              <div className="space-y-2.5">
-                <div className="flex items-center gap-2 text-sm">
-                  <UserIcon className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Owners:</span>
-                  <span className="font-medium text-foreground">{listing.numOwners ?? "—"}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  {listing.accidentHistory ? (
-                    <AlertTriangle className="h-4 w-4 text-destructive" />
-                  ) : (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                  )}
-                  <span className="text-muted-foreground">Accidents:</span>
-                  <span className="font-medium text-foreground">
-                    {listing.accidentHistory ? "Reported" : "None reported"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Shield className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Title:</span>
-                  <span className="font-medium text-foreground capitalize">{listing.titleStatus || "Clean"}</span>
-                </div>
-              </div>
-            </Card>
-          )}
-
-          {/* Price Estimate */}
-          {estimate && (
-            <Card className="p-5">
-              <h3 className="text-sm font-semibold text-foreground" data-testid="text-price-estimate-title">Market Price Estimate</h3>
-              <PriceBar estimate={estimate} />
-            </Card>
-          )}
-
-          {/* Contact */}
+          {/* Seller info */}
           <Card className="p-5">
             <h3 className="text-sm font-semibold text-foreground mb-3">Seller Info</h3>
-            <Button className="w-full gap-2" data-testid="button-contact-seller">
-              <Phone className="h-4 w-4" />
-              Contact Seller
-            </Button>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                {listing.sellerType === "dealer" ? "D" : "P"}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">
+                  {listing.sellerType === "dealer" ? "Dealer" : "Private Seller"}
+                </p>
+                {listing.city && listing.state && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                    <MapPin className="h-3 w-3" /> {listing.city}, {listing.state}
+                  </p>
+                )}
+              </div>
+            </div>
           </Card>
         </div>
       </div>
