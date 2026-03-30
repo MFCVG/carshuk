@@ -168,8 +168,8 @@ export default function ListingDetail() {
         {/* Left column — 2/3 */}
         <div className="lg:col-span-2 space-y-5">
           {/* Image gallery placeholder */}
-          <div className="relative aspect-[16/9] rounded-xl bg-gradient-to-br from-primary/10 via-muted to-muted/80 flex items-center justify-center overflow-hidden">
-            <Car className="h-20 w-20 text-muted-foreground/20" />
+          <div className="relative aspect-[16/9] rounded-xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden">
+            <Car className="h-20 w-20 text-muted-foreground/30" />
             {/* Photo count badge */}
             <div className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-md bg-black/50 backdrop-blur-sm px-2.5 py-1 text-xs text-white">
               <Camera className="h-3.5 w-3.5" />

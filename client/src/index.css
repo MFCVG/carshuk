@@ -263,6 +263,11 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* Hero gradient overlay for cinematic hero */
+  .hero-gradient {
+    background: linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%);
+  }
+
   /* Letter spacing utilities for premium typography */
   .tracking-labels {
     letter-spacing: 0.05em;

@@ -35,8 +35,8 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         className="listing-card group"
       >
         {/* Image area — 16:10 aspect ratio */}
-        <div className="relative aspect-[16/10] bg-muted flex items-center justify-center overflow-hidden">
-          <Car className="h-10 w-10 text-muted-foreground/20" />
+        <div className="relative aspect-[16/10] bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden">
+          <Car className="h-10 w-10 text-muted-foreground/30" />
 
           {/* Favorite heart — top-right */}
           <button

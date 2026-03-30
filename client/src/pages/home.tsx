@@ -29,6 +29,15 @@ const steps = [
   { step: "03", title: "Contact the seller", desc: "Reach out directly — no middleman fees, no hidden markups. Just you and the seller." },
 ];
 
+const categories = [
+  { name: "SUVs", type: "SUV", image: "/images/category-suv.jpg" },
+  { name: "Sedans", type: "Sedan", image: "/images/category-sedan.jpg" },
+  { name: "Trucks", type: "Truck", image: "/images/category-truck.jpg" },
+  { name: "Electric", type: "Electric", image: "/images/category-electric.jpg" },
+  { name: "Coupes", type: "Coupe", image: "/images/category-coupe.jpg" },
+  { name: "Minivans", type: "Minivan", image: "/images/category-minivan.jpg" },
+];
+
 export default function HomePage() {
   const [, navigate] = useLocation();
   const [searchMake, setSearchMake] = useState("");
@@ -48,29 +57,38 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
 
-      {/* ── Hero — light cool-gray bg, coral accent headline ── */}
-      <section className="bg-muted/50 border-b border-border/60">
-        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
+      {/* ── Hero — cinematic full-bleed with background image ── */}
+      <section className="relative min-h-[480px] sm:min-h-[520px] flex items-center overflow-hidden">
+        {/* Background image */}
+        <img
+          src="/images/hero-banner.jpg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* Dark gradient overlay */}
+        <div className="absolute inset-0 hero-gradient" />
+
+        <div className="relative z-10 mx-auto max-w-7xl w-full px-4 sm:px-6 py-16 sm:py-20">
           <div className="max-w-2xl">
             <h1
-              className="text-3xl font-extrabold text-foreground leading-tight tracking-tight sm:text-4xl"
+              className="text-3xl font-extrabold text-white leading-tight tracking-tight sm:text-5xl"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", letterSpacing: "-0.02em" }}
               data-testid="text-hero-title"
             >
               Find your{" "}
               <span style={{ color: "hsl(16 85% 55%)" }}>next car</span>
             </h1>
-            <p className="mt-4 text-base text-muted-foreground leading-relaxed max-w-lg">
+            <p className="mt-4 text-base text-white/70 leading-relaxed max-w-lg sm:text-lg">
               Search thousands of listings from private sellers and trusted dealers
             </p>
           </div>
 
-          {/* Segmented search bar — CG-style */}
+          {/* Segmented search bar — floating white card */}
           <div className="mt-8 max-w-2xl">
-            <div className="flex flex-col sm:flex-row items-stretch gap-0 rounded-lg bg-card overflow-hidden shadow-sm border border-border">
+            <div className="flex flex-col sm:flex-row items-stretch gap-0 rounded-xl bg-white/95 backdrop-blur-sm overflow-hidden shadow-lg">
               <Select value={searchMake} onValueChange={setSearchMake}>
                 <SelectTrigger
-                  className="border-0 border-r border-border rounded-none h-12 flex-1 text-sm focus:ring-0"
+                  className="border-0 border-r border-border/40 rounded-none h-12 flex-1 text-sm focus:ring-0 bg-transparent text-foreground"
                   data-testid="select-hero-make"
                 >
                   <SelectValue placeholder="Any Make" />
@@ -85,12 +103,12 @@ export default function HomePage() {
                 placeholder="ZIP Code"
                 value={searchZip}
                 onChange={(e) => setSearchZip(e.target.value)}
-                className="border-0 border-r border-border rounded-none h-12 w-full sm:max-w-[140px] text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="border-0 border-r border-border/40 rounded-none h-12 w-full sm:max-w-[140px] text-sm focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-foreground"
                 data-testid="input-hero-zip"
               />
               <Button
                 onClick={handleSearch}
-                className="h-12 px-6 rounded-none sm:rounded-r-lg font-semibold gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="h-12 px-6 rounded-none sm:rounded-r-xl font-semibold gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
                 data-testid="button-hero-search"
               >
                 <Search className="h-4 w-4" />
@@ -103,7 +121,7 @@ export default function HomePage() {
           <div className="mt-5 flex flex-wrap gap-2 max-w-2xl">
             {["SUV", "Under $20k", "Low Mileage", "Electric", "AWD"].map((pill) => (
               <Link key={pill} href={`/browse?q=${encodeURIComponent(pill)}`}>
-                <span className="inline-flex items-center rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors cursor-pointer">
+                <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-medium text-white hover:bg-white/20 transition-colors cursor-pointer">
                   {pill}
                 </span>
               </Link>
@@ -112,20 +130,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Stats — clean horizontal, large numbers ── */}
-      <section className="border-b border-border/60">
+      {/* ── Stats — clean horizontal, impactful ── */}
+      <section className="border-b border-border/60 bg-card">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
           <div className="flex flex-wrap items-center justify-center sm:justify-start divide-x divide-border/60 gap-0">
             <div className="px-8 sm:px-10 py-2 text-center sm:text-left first:pl-0">
-              <p className="text-2xl font-bold text-foreground tabular-nums" data-testid="stat-listings">500+</p>
+              <p className="text-2xl font-bold text-foreground tabular-nums sm:text-3xl" data-testid="stat-listings">500+</p>
               <p className="text-xs text-muted-foreground mt-0.5">Active Listings</p>
             </div>
             <div className="px-8 sm:px-10 py-2 text-center sm:text-left">
-              <p className="text-2xl font-bold text-foreground tabular-nums" data-testid="stat-dealers">200+</p>
+              <p className="text-2xl font-bold text-foreground tabular-nums sm:text-3xl" data-testid="stat-dealers">200+</p>
               <p className="text-xs text-muted-foreground mt-0.5">Verified Dealers</p>
             </div>
             <div className="px-8 sm:px-10 py-2 text-center sm:text-left">
-              <p className="text-2xl font-bold text-foreground tabular-nums" data-testid="stat-rating">4.9</p>
+              <p className="text-2xl font-bold text-foreground tabular-nums sm:text-3xl" data-testid="stat-rating">4.9</p>
               <p className="text-xs text-muted-foreground mt-0.5">Community Rating</p>
             </div>
           </div>
@@ -173,23 +191,32 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* ── Browse by Category — horizontal pills ── */}
-      <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6">
-        <h2 className="text-lg font-bold text-foreground tracking-tight mb-4" data-testid="text-browse-category">
+      {/* ── Browse by Category — visual cards with images ── */}
+      <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 sm:pb-16">
+        <h2 className="text-lg font-bold text-foreground tracking-tight mb-6" data-testid="text-browse-category">
           Browse by Category
         </h2>
-        <div className="flex flex-wrap gap-2">
-          {["SUV", "Sedan", "Truck", "Coupe", "Minivan", "Electric"].map((cat) => (
-            <Link key={cat} href={`/browse?bodyType=${encodeURIComponent(cat)}`}>
-              <span className="inline-flex items-center rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors cursor-pointer">
-                {cat}
-              </span>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          {categories.map((cat) => (
+            <Link key={cat.type} href={`/browse?bodyType=${encodeURIComponent(cat.type)}`}>
+              <div className="group relative overflow-hidden rounded-xl border border-border bg-card cursor-pointer">
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <div className="p-3 text-center">
+                  <p className="text-sm font-semibold text-foreground">{cat.name}</p>
+                </div>
+              </div>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* ── Why CarShuk — clean, no teal tinted backgrounds ── */}
+      {/* ── Why CarShuk — icons with primary tint backgrounds ── */}
       <section className="border-y border-border/60 bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-5">
@@ -197,7 +224,7 @@ export default function HomePage() {
             <div className="lg:col-span-2">
               <div className="aspect-[4/3] rounded-xl border border-border/60 bg-background flex items-center justify-center">
                 <div className="text-center px-6">
-                  <BarChart3 className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                  <BarChart3 className="h-10 w-10 text-primary/40 mx-auto mb-3" />
                   <p className="text-sm font-semibold text-foreground">Transparent Pricing</p>
                   <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
                     Every listing includes a real market price estimate
@@ -215,7 +242,7 @@ export default function HomePage() {
               </h2>
               <div className="space-y-6">
                 <div className="flex gap-4">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-background">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                     <ShieldCheck className="h-4 w-4 text-primary" />
                   </div>
                   <div>
@@ -226,7 +253,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-background">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                     <Users className="h-4 w-4 text-primary" />
                   </div>
                   <div>
@@ -237,7 +264,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-background">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                     <Zap className="h-4 w-4 text-primary" />
                   </div>
                   <div>
@@ -269,7 +296,7 @@ export default function HomePage() {
             <Link key={loc.name} href={`/browse?city=${encodeURIComponent(loc.name)}`}>
               <div
                 data-testid={`card-location-${loc.name.toLowerCase().replace(/\s/g, "-")}`}
-                className="group rounded-lg border border-border bg-background p-4 transition-all duration-200 hover:border-primary/30 hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 cursor-pointer"
+                className="group rounded-lg border border-border bg-card p-4 transition-all duration-200 hover:border-primary/30 hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 cursor-pointer"
               >
                 <div className="flex items-center gap-2.5">
                   <MapPin className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
@@ -296,8 +323,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
             {steps.map((s) => (
               <div key={s.step} className="flex gap-5">
-                {/* Clean numbered circle */}
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-background">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
                   <span className="text-sm font-semibold text-primary tabular-nums">{s.step}</span>
                 </div>
                 <div className="pt-0.5">
@@ -310,26 +336,34 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── CTA — clean, subtle, no gradient ── */}
+      {/* ── CTA — cinematic with sell-cta-bg.jpg ── */}
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
-        <div className="rounded-xl border border-border bg-background p-8 sm:p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div>
-            <h2 className="text-lg font-bold text-foreground tracking-tight">Ready to sell your car?</h2>
-            <p className="mt-1.5 text-sm text-muted-foreground max-w-md leading-relaxed">
-              List it in minutes. Enter your VIN, set your price, and connect with buyers in your area.
-            </p>
-          </div>
-          <div className="flex gap-3 shrink-0">
-            <Link href="/sell">
-              <Button data-testid="button-cta-sell" className="gap-2">
-                Sell My Car <ChevronRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/browse">
-              <Button variant="outline" data-testid="button-cta-browse">
-                Browse Cars
-              </Button>
-            </Link>
+        <div className="relative rounded-xl overflow-hidden">
+          <img
+            src="/images/sell-cta-bg.jpg"
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="relative z-10 p-8 sm:p-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div>
+              <h2 className="text-xl font-bold text-white tracking-tight sm:text-2xl">Ready to sell your car?</h2>
+              <p className="mt-2 text-sm text-white/70 max-w-md leading-relaxed">
+                List it in minutes. Enter your VIN, set your price, and connect with buyers in your area.
+              </p>
+            </div>
+            <div className="flex gap-3 shrink-0">
+              <Link href="/sell">
+                <Button data-testid="button-cta-sell" className="gap-2 bg-white text-foreground hover:bg-white/90 font-semibold">
+                  Sell My Car <ChevronRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/browse">
+                <Button variant="outline" data-testid="button-cta-browse" className="border-white/40 text-white hover:bg-white/10">
+                  Browse Cars
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

@@ -58,74 +58,81 @@ export default function Auth() {
 
   return (
     <div className="min-h-[calc(100vh-56px)] flex">
-      {/* Left branding panel — deep navy, white text */}
+      {/* Left branding panel — hero image with navy overlay */}
       <div
-        className="hidden lg:flex lg:w-[420px] shrink-0 flex-col justify-center px-12 py-16"
-        style={{ backgroundColor: "hsl(215 70% 22%)" }}
+        className="hidden lg:flex lg:w-[420px] shrink-0 flex-col justify-center px-12 py-16 relative overflow-hidden"
       >
-        {/* Logo mark */}
-        <div className="mb-10">
-          <svg
-            width="36"
-            height="36"
-            viewBox="0 0 28 28"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="text-white"
-          >
-            <path
-              d="M4 17.5h20M5.5 17.5l2-6h13l2 6M8.5 11.5l1.5-4h8l1.5 4"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <circle cx="9" cy="17.5" r="2" fill="currentColor" />
-            <circle cx="19" cy="17.5" r="2" fill="currentColor" />
-          </svg>
-          <p
-            className="text-xl text-white mt-3"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-          >
-            <span className="font-medium">CAR</span>
-            <span className="font-bold">SHUK</span>
+        <img
+          src="/images/hero-banner.jpg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0" style={{ backgroundColor: "hsl(215 70% 22% / 0.85)" }} />
+        <div className="relative z-10">
+          {/* Logo mark */}
+          <div className="mb-10">
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 28 28"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="text-white"
+            >
+              <path
+                d="M4 17.5h20M5.5 17.5l2-6h13l2 6M8.5 11.5l1.5-4h8l1.5 4"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <circle cx="9" cy="17.5" r="2" fill="currentColor" />
+              <circle cx="19" cy="17.5" r="2" fill="currentColor" />
+            </svg>
+            <p
+              className="text-xl text-white mt-3"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            >
+              <span className="font-medium">CAR</span>
+              <span className="font-bold">SHUK</span>
+            </p>
+          </div>
+
+          <h2 className="text-2xl font-bold text-white leading-tight tracking-tight" style={{ letterSpacing: "-0.02em" }}>
+            The smarter way<br />to buy and sell cars.
+          </h2>
+          <p className="mt-4 text-sm text-white/70 leading-relaxed">
+            Join thousands of buyers and sellers in your community.
           </p>
-        </div>
 
-        <h2 className="text-2xl font-bold text-white leading-tight tracking-tight" style={{ letterSpacing: "-0.02em" }}>
-          The smarter way<br />to buy and sell cars.
-        </h2>
-        <p className="mt-4 text-sm text-white/70 leading-relaxed">
-          Join thousands of buyers and sellers in your community.
-        </p>
-
-        {/* Trust signals */}
-        <div className="mt-10 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
-              <ShieldCheck className="h-4 w-4 text-white" />
+          {/* Trust signals */}
+          <div className="mt-10 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
+                <ShieldCheck className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">No buyer fees</p>
+                <p className="text-xs text-white/60">Always free to browse and buy</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-white">No buyer fees</p>
-              <p className="text-xs text-white/60">Always free to browse and buy</p>
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
+                <Users className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">Verified community</p>
+                <p className="text-xs text-white/60">Real sellers, real prices</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
-              <Users className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-white">Verified community</p>
-              <p className="text-xs text-white/60">Real sellers, real prices</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
-              <Car className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-white">500+ active listings</p>
-              <p className="text-xs text-white/60">New cars added daily</p>
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
+                <Car className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">500+ active listings</p>
+                <p className="text-xs text-white/60">New cars added daily</p>
+              </div>
             </div>
           </div>
         </div>
