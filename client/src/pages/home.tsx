@@ -7,8 +7,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ListingCard from "@/components/listing-card";
 import {
   Search, ShieldCheck, Users, Zap, ArrowRight, MapPin,
-  BarChart3, Star, Car, ChevronRight,
+  BarChart3, Star, Car, ChevronRight, MessageCircle,
 } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import type { Listing } from "@shared/schema";
@@ -62,8 +63,24 @@ export default function HomePage() {
     navigate(`/browse${params.toString() ? "?" + params.toString() : ""}`);
   };
 
+  const whatsappUrl = "https://api.whatsapp.com/send/?phone=17322313011&text=Hi%21+I+want+to+join+your+WhatsApp+status+to+see+new+CarShuk+listings!&type=phone_number&app_absent=0";
+
   return (
     <div className="min-h-screen bg-background">
+
+      {/* ── WhatsApp Banner ── */}
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block bg-[#25D366] hover:bg-[#20BD5A] transition-colors"
+      >
+        <div className="mx-auto max-w-7xl px-4 py-2.5 sm:px-6 flex items-center justify-center gap-2">
+          <SiWhatsapp className="h-4 w-4 text-white" />
+          <span className="text-sm font-semibold text-white">Follow Us on WhatsApp</span>
+          <ArrowRight className="h-3.5 w-3.5 text-white/80" />
+        </div>
+      </a>
 
       {/* ── Hero — cinematic full-bleed with background image ── */}
       <section className="relative min-h-[480px] sm:min-h-[520px] flex items-center overflow-hidden">
@@ -140,7 +157,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Stats — clean horizontal, impactful ── */}
-      <section className="border-b border-border/60 bg-card">
+      <section className="border-b border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
           <div className="flex flex-wrap items-center justify-center sm:justify-start divide-x divide-border/60 gap-0">
             <div className="px-8 sm:px-10 py-2 text-center sm:text-left first:pl-0">
@@ -160,7 +177,8 @@ export default function HomePage() {
       </section>
 
       {/* ── Featured Listings — 3-column CG-style ── */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+      <section className="bg-background py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex items-end justify-between mb-8">
           <div>
             <h2
@@ -198,10 +216,12 @@ export default function HomePage() {
             ))}
           </div>
         )}
+        </div>
       </section>
 
       {/* ── Browse by Category — visual cards with images ── */}
-      <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 sm:pb-16">
+      <section className="bg-secondary border-y border-border py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <h2 className="text-lg font-bold text-foreground tracking-tight mb-6" data-testid="text-browse-category">
           Browse by Category
         </h2>
@@ -223,10 +243,11 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
+        </div>
       </section>
 
       {/* ── Why CarShuk — icons with primary tint backgrounds ── */}
-      <section className="border-y border-border/60 bg-secondary">
+      <section className="bg-background border-b border-border">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-5">
             {/* Left — visual element */}
@@ -290,7 +311,8 @@ export default function HomePage() {
       </section>
 
       {/* ── Browse by Location — clean cards ── */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+      <section className="bg-secondary border-b border-border py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-8">
           <h2
             className="text-lg font-bold text-foreground tracking-tight"
@@ -318,10 +340,11 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
+        </div>
       </section>
 
       {/* ── How It Works — clean numbered steps ── */}
-      <section className="border-y border-border/60 bg-secondary">
+      <section className="bg-background border-b border-border">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
           <h2
             className="text-lg font-bold text-foreground tracking-tight mb-10"
@@ -346,7 +369,8 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA — cinematic with sell-cta-bg.jpg ── */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+      <section className="bg-secondary py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="relative rounded-xl overflow-hidden">
           <img
             src={sellCtaBgImg}
@@ -374,6 +398,7 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
+        </div>
         </div>
       </section>
     </div>

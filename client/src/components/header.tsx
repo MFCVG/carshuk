@@ -102,7 +102,7 @@ export default function Header() {
         <div className="flex items-center gap-1.5">
           {/* WhatsApp nav button */}
           <a
-            href="https://wa.me/?text=Check%20out%20CarShuk%20-%20carshuk.com"
+            href="https://api.whatsapp.com/send/?phone=17322313011&text=Hi%21+I+want+to+join+your+WhatsApp+status+to+see+new+CarShuk+listings!&type=phone_number&app_absent=0"
             target="_blank"
             rel="noopener noreferrer"
           >
