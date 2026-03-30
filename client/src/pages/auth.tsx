@@ -67,7 +67,7 @@ export default function Auth() {
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0" style={{ backgroundColor: "hsl(215 70% 22% / 0.85)" }} />
+        <div className="absolute inset-0" style={{ backgroundColor: "hsl(168 65% 48% / 0.85)" }} />
         <div className="relative z-10">
           {/* Logo mark */}
           <div className="mb-10">

@@ -75,8 +75,9 @@ export default function HomePage() {
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", letterSpacing: "-0.02em" }}
               data-testid="text-hero-title"
             >
-              Find your{" "}
-              <span style={{ color: "hsl(16 85% 55%)" }}>next car</span>
+              Buy with confidence.
+              <br />
+              <span className="text-primary">Sell in minutes.</span>
             </h1>
             <p className="mt-4 text-base text-white/70 leading-relaxed max-w-lg sm:text-lg">
               Search thousands of listings from private sellers and trusted dealers
@@ -85,7 +86,7 @@ export default function HomePage() {
 
           {/* Segmented search bar — floating white card */}
           <div className="mt-8 max-w-2xl">
-            <div className="flex flex-col sm:flex-row items-stretch gap-0 rounded-xl bg-white/95 backdrop-blur-sm overflow-hidden shadow-lg">
+            <div className="flex flex-col sm:flex-row items-stretch gap-0 rounded-full bg-white/95 backdrop-blur-sm overflow-hidden shadow-lg">
               <Select value={searchMake} onValueChange={setSearchMake}>
                 <SelectTrigger
                   className="border-0 border-r border-border/40 rounded-none h-12 flex-1 text-sm focus:ring-0 bg-transparent text-foreground"
@@ -108,7 +109,7 @@ export default function HomePage() {
               />
               <Button
                 onClick={handleSearch}
-                className="h-12 px-6 rounded-none sm:rounded-r-xl font-semibold gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="h-12 px-6 rounded-none sm:rounded-r-full font-semibold gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
                 data-testid="button-hero-search"
               >
                 <Search className="h-4 w-4" />
@@ -164,7 +165,7 @@ export default function HomePage() {
           </div>
           <Link href="/browse">
             <span
-              className="text-sm font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors"
+              className="text-sm font-medium text-primary hover:text-primary/80 inline-flex items-center gap-1 transition-colors"
               data-testid="link-view-all"
             >
               View all <ArrowRight className="h-3.5 w-3.5" />
@@ -217,7 +218,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Why CarShuk — icons with primary tint backgrounds ── */}
-      <section className="border-y border-border/60 bg-muted/30">
+      <section className="border-y border-border/60 bg-secondary">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-5">
             {/* Left — visual element */}
@@ -312,7 +313,7 @@ export default function HomePage() {
       </section>
 
       {/* ── How It Works — clean numbered steps ── */}
-      <section className="border-y border-border/60 bg-muted/30">
+      <section className="border-y border-border/60 bg-secondary">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
           <h2
             className="text-lg font-bold text-foreground tracking-tight mb-10"
@@ -354,12 +355,12 @@ export default function HomePage() {
             </div>
             <div className="flex gap-3 shrink-0">
               <Link href="/sell">
-                <Button data-testid="button-cta-sell" className="gap-2 bg-white text-foreground hover:bg-white/90 font-semibold">
+                <Button data-testid="button-cta-sell" className="gap-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold px-6">
                   Sell My Car <ChevronRight className="h-4 w-4" />
                 </Button>
               </Link>
               <Link href="/browse">
-                <Button variant="outline" data-testid="button-cta-browse" className="border-white/40 text-white hover:bg-white/10">
+                <Button variant="outline" data-testid="button-cta-browse" className="rounded-full border-white/40 text-white hover:bg-white/10 px-6">
                   Browse Cars
                 </Button>
               </Link>

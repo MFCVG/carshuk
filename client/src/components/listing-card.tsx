@@ -32,7 +32,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
     <Link href={`/listings/${listing.id}`}>
       <div
         data-testid={`card-listing-${listing.id}`}
-        className="listing-card group"
+        className="listing-card group shadow-[0_2px_12px_rgba(0,0,0,0.08)]"
       >
         {/* Image area — 16:10 aspect ratio */}
         <div className="relative aspect-[16/10] bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden">
@@ -98,7 +98,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
               {deal.label}
             </span>
             <p
-              className="text-lg font-bold text-foreground tabular-nums leading-none"
+              className="text-lg font-bold text-primary tabular-nums leading-none"
               data-testid={`text-price-${listing.id}`}
             >
               {formatPrice(listing.price)}
@@ -109,7 +109,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               {listing.contactWhatsapp && (
-                <SiWhatsapp className="h-3.5 w-3.5 text-muted-foreground/50" title="WhatsApp available" />
+                <SiWhatsapp className="h-3.5 w-3.5 text-primary" title="WhatsApp available" />
               )}
               {listing.contactSms && (
                 <MessageCircle className="h-3.5 w-3.5 text-muted-foreground/50" title="SMS available" />
@@ -122,8 +122,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
 
           {/* Check Availability button */}
           <Button
-            variant="outline"
-            className="w-full mt-1 h-9 text-sm font-medium border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+            className="w-full mt-1 h-9 text-sm font-medium rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
             data-testid={`button-check-avail-${listing.id}`}
           >

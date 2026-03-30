@@ -11,13 +11,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Menu, Moon, Sun, LogOut, LayoutDashboard, Heart } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
 import { useState } from "react";
 
 function CarShukLogo({ className = "" }: { className?: string }) {
   return (
     <Link href="/" data-testid="link-home-logo">
       <div className={`flex items-center gap-2.5 ${className}`}>
-        {/* Clean car icon — dark, no colored background */}
         <svg
           width="28"
           height="28"
@@ -25,7 +25,7 @@ function CarShukLogo({ className = "" }: { className?: string }) {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           aria-label="CarShuk logo"
-          className="text-foreground"
+          className="text-primary"
         >
           <path
             d="M4 17.5h20M5.5 17.5l2-6h13l2 6M8.5 11.5l1.5-4h8l1.5 4"
@@ -37,7 +37,6 @@ function CarShukLogo({ className = "" }: { className?: string }) {
           <circle cx="9" cy="17.5" r="2" fill="currentColor" />
           <circle cx="19" cy="17.5" r="2" fill="currentColor" />
         </svg>
-        {/* CAR normal weight, SHUK bold — both dark */}
         <span
           className="text-base tracking-tight text-foreground"
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
@@ -65,8 +64,8 @@ export default function Header() {
   }
 
   const navLinks = [
-    { href: "/browse", label: "Browse" },
-    { href: "/sell", label: "Sell" },
+    { href: "/browse", label: "Browse Cars" },
+    { href: "/sell", label: "Sell My Car" },
   ];
 
   if (user) {
@@ -74,12 +73,12 @@ export default function Header() {
   }
 
   return (
-    <header
-      className={`sticky top-0 z-50 bg-background border-b border-border/60 transition-shadow duration-200 ${
-        scrolled ? "shadow-[0_1px_3px_rgba(0,0,0,0.06)]" : ""
-      }`}
-    >
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
+    <header className="fixed top-0 left-0 right-0 z-50 px-4 pt-3">
+      <div
+        className={`mx-auto flex h-14 max-w-7xl items-center justify-between px-6 rounded-full bg-white/95 dark:bg-background/95 backdrop-blur-md transition-shadow duration-200 ${
+          scrolled ? "shadow-lg" : "shadow-md"
+        }`}
+      >
         <div className="flex items-center gap-8">
           <CarShukLogo />
           <nav className="hidden items-center gap-1 md:flex">
@@ -87,10 +86,10 @@ export default function Header() {
               <Link key={link.href} href={link.href}>
                 <span
                   data-testid={`link-nav-${link.label.toLowerCase().replace(/\s/g, "-")}`}
-                  className={`relative inline-flex items-center px-3 py-4 text-sm font-medium transition-colors after:absolute after:bottom-0 after:left-3 after:right-3 after:h-[2px] after:rounded-full after:transition-all after:duration-200 ${
+                  className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-full transition-colors ${
                     location === link.href
-                      ? "text-foreground after:bg-primary after:scale-x-100"
-                      : "text-muted-foreground hover:text-foreground after:bg-primary after:scale-x-0 hover:after:scale-x-100"
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
                   {link.label}
@@ -101,13 +100,29 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-1.5">
+          {/* WhatsApp nav button */}
+          <a
+            href="https://wa.me/?text=Check%20out%20CarShuk%20-%20carshuk.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 text-primary hover:text-primary hover:bg-primary/10 rounded-full"
+              data-testid="button-whatsapp-nav"
+            >
+              <SiWhatsapp className="h-4 w-4" />
+            </Button>
+          </a>
+
           {/* Saved/favorites link */}
           {user && (
             <Link href="/dashboard">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                className="h-9 w-9 text-muted-foreground hover:text-foreground rounded-full"
                 data-testid="button-saved"
               >
                 <Heart className="h-4 w-4" />
@@ -121,7 +136,7 @@ export default function Header() {
             size="icon"
             onClick={toggle}
             data-testid="button-theme-toggle"
-            className="h-9 w-9 text-muted-foreground hover:text-foreground"
+            className="h-9 w-9 text-muted-foreground hover:text-foreground rounded-full"
           >
             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
@@ -132,7 +147,7 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   data-testid="button-user-menu"
-                  className="hidden h-9 gap-2 px-3 md:flex text-sm font-medium"
+                  className="hidden h-9 gap-2 px-3 md:flex text-sm font-medium rounded-full"
                 >
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
                     {user.firstName[0]}
@@ -157,10 +172,9 @@ export default function Header() {
           ) : (
             <Link href="/auth">
               <Button
-                variant="outline"
                 size="sm"
                 data-testid="button-sign-in"
-                className="hidden md:inline-flex h-8 px-4 text-sm font-medium border-border"
+                className="hidden md:inline-flex h-8 px-5 text-sm font-medium rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 Sign In
               </Button>
@@ -173,7 +187,7 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 md:hidden"
+                className="h-9 w-9 md:hidden rounded-full"
                 data-testid="button-mobile-menu"
               >
                 <Menu className="h-5 w-5" />

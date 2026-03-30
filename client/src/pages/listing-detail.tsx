@@ -189,7 +189,7 @@ export default function ListingDetail() {
             <h1 className="text-xl font-bold text-foreground" data-testid="text-listing-title-mobile">
               {listing.title}
             </h1>
-            <p className="text-lg font-bold text-foreground mt-1 tabular-nums">{formatPrice(listing.price)}</p>
+            <p className="text-lg font-bold text-primary mt-1 tabular-nums">{formatPrice(listing.price)}</p>
           </div>
 
           {/* Vehicle Overview — clean 2-column spec grid, no icon badges */}
@@ -338,7 +338,7 @@ export default function ListingDetail() {
         {/* Right sidebar — 1/3 */}
         <div className="space-y-4">
           {/* Price card */}
-          <Card className="p-5 sticky top-20">
+          <Card className="p-5 sticky top-24">
             <h1 className="hidden lg:block text-lg font-bold text-foreground leading-tight" data-testid="text-listing-title">
               <span className="font-normal text-muted-foreground">{listing.year}</span>{" "}
               {listing.make} {listing.model}
@@ -350,7 +350,7 @@ export default function ListingDetail() {
             )}
 
             <div className="mt-4">
-              <p className="text-xl font-bold text-foreground tabular-nums" data-testid="text-detail-price">
+              <p className="text-2xl font-bold text-primary tabular-nums" data-testid="text-detail-price">
                 {formatPrice(listing.price)}
               </p>
               <p className="text-xs text-muted-foreground tabular-nums mt-0.5">
@@ -392,7 +392,7 @@ export default function ListingDetail() {
             <div className="mt-5 space-y-2">
               {/* Primary CTA — Check Availability */}
               <Button
-                className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                className="w-full gap-2 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
                 data-testid="button-check-availability"
               >
                 Check Availability
