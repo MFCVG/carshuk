@@ -10,34 +10,40 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, Moon, Sun, LogOut, LayoutDashboard, Car } from "lucide-react";
+import { Menu, Moon, Sun, LogOut, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 
 function CarShukLogo({ className = "" }: { className?: string }) {
   return (
     <Link href="/" data-testid="link-home-logo">
-      <div className={`flex items-center gap-2 ${className}`}>
+      <div className={`flex items-center gap-2.5 ${className}`}>
+        {/* Clean car icon — dark, no colored background */}
         <svg
-          width="32"
-          height="32"
-          viewBox="0 0 32 32"
+          width="28"
+          height="28"
+          viewBox="0 0 28 28"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           aria-label="CarShuk logo"
+          className="text-foreground"
         >
-          <rect width="32" height="32" rx="6" className="fill-primary" />
           <path
-            d="M6 20.5h20M8 20.5l1.5-5.5h13l1.5 5.5M10.5 15l1-3.5h9l1 3.5"
-            stroke="white"
-            strokeWidth="1.8"
+            d="M4 17.5h20M5.5 17.5l2-6h13l2 6M8.5 11.5l1.5-4h8l1.5 4"
+            stroke="currentColor"
+            strokeWidth="1.75"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          <circle cx="11" cy="20.5" r="2" fill="white" />
-          <circle cx="21" cy="20.5" r="2" fill="white" />
+          <circle cx="9" cy="17.5" r="2" fill="currentColor" />
+          <circle cx="19" cy="17.5" r="2" fill="currentColor" />
         </svg>
-        <span className="text-lg font-bold tracking-tight text-foreground">
-          CAR<span className="text-primary">SHUK</span>
+        {/* CAR normal weight, SHUK bold — both dark */}
+        <span
+          className="text-base tracking-tight text-foreground"
+          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        >
+          <span className="font-medium">CAR</span>
+          <span className="font-bold">SHUK</span>
         </span>
       </div>
     </Link>
@@ -49,6 +55,14 @@ export default function Header() {
   const { isDark, toggle } = useTheme();
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Subtle shadow on scroll
+  if (typeof window !== "undefined") {
+    window.addEventListener("scroll", () => {
+      setScrolled(window.scrollY > 4);
+    }, { passive: true });
+  }
 
   const navLinks = [
     { href: "/browse", label: "Browse Cars" },
@@ -60,19 +74,23 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
+    <header
+      className={`sticky top-0 z-50 bg-background border-b border-border/60 transition-shadow duration-200 ${
+        scrolled ? "shadow-[0_1px_3px_rgba(0,0,0,0.06)]" : ""
+      }`}
+    >
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-8">
           <CarShukLogo />
-          <nav className="hidden items-center gap-2 md:flex">
+          <nav className="hidden items-center gap-1 md:flex">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href}>
                 <span
                   data-testid={`link-nav-${link.label.toLowerCase().replace(/\s/g, "-")}`}
-                  className={`relative inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors after:absolute after:bottom-0 after:left-3 after:right-3 after:h-[2px] after:bg-primary after:rounded-full after:transition-transform after:duration-200 ${
+                  className={`relative inline-flex items-center px-3 py-4 text-sm font-medium transition-colors after:absolute after:bottom-0 after:left-3 after:right-3 after:h-[2px] after:rounded-full after:transition-all after:duration-200 ${
                     location === link.href
-                      ? "text-primary bg-primary/8 after:scale-x-100"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted after:scale-x-0 hover:after:scale-x-100"
+                      ? "text-foreground after:bg-primary after:scale-x-100"
+                      : "text-muted-foreground hover:text-foreground after:bg-primary after:scale-x-0 hover:after:scale-x-100"
                   }`}
                 >
                   {link.label}
@@ -82,13 +100,14 @@ export default function Header() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          {/* Dark mode toggle */}
           <Button
             variant="ghost"
             size="icon"
             onClick={toggle}
             data-testid="button-theme-toggle"
-            className="h-9 w-9"
+            className="h-9 w-9 text-muted-foreground hover:text-foreground"
           >
             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
@@ -99,12 +118,12 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   data-testid="button-user-menu"
-                  className="hidden h-9 gap-2 px-3 md:flex"
+                  className="hidden h-9 gap-2 px-3 md:flex text-sm font-medium"
                 >
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
                     {user.firstName[0]}
                   </div>
-                  <span className="text-sm">{user.firstName}</span>
+                  <span>{user.firstName}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -124,10 +143,10 @@ export default function Header() {
           ) : (
             <Link href="/auth">
               <Button
-                variant="default"
+                variant="outline"
                 size="sm"
                 data-testid="button-sign-in"
-                className="hidden md:inline-flex"
+                className="hidden md:inline-flex h-8 px-4 text-sm font-medium border-border"
               >
                 Sign In
               </Button>
@@ -147,15 +166,15 @@ export default function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-72 pt-10">
-              <nav className="flex flex-col gap-1">
+              <nav className="flex flex-col gap-0.5">
                 {navLinks.map((link) => (
                   <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}>
                     <span
                       data-testid={`link-mobile-${link.label.toLowerCase().replace(/\s/g, "-")}`}
                       className={`block px-3 py-2.5 text-sm font-medium rounded-md transition-colors ${
                         location === link.href
-                          ? "text-primary bg-primary/8"
-                          : "text-foreground hover:bg-muted"
+                          ? "text-foreground bg-muted"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
                       }`}
                     >
                       {link.label}
@@ -167,7 +186,7 @@ export default function Header() {
                   <button
                     onClick={() => { logout(); setMobileOpen(false); }}
                     data-testid="button-mobile-logout"
-                    className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-foreground rounded-md hover:bg-muted"
+                    className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-muted-foreground rounded-md hover:bg-muted hover:text-foreground transition-colors"
                   >
                     <LogOut className="h-4 w-4" />
                     Sign Out
@@ -176,7 +195,7 @@ export default function Header() {
                   <Link href="/auth" onClick={() => setMobileOpen(false)}>
                     <span
                       data-testid="link-mobile-sign-in"
-                      className="block px-3 py-2.5 text-sm font-medium text-primary"
+                      className="block px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted rounded-md transition-colors"
                     >
                       Sign In
                     </span>

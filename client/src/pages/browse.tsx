@@ -22,13 +22,13 @@ import type { Listing } from "@shared/schema";
 
 const makes = ["Toyota", "Honda", "BMW", "Mercedes-Benz", "Tesla", "Ford", "Chevrolet", "Jeep", "Hyundai", "Kia", "Nissan", "Lexus", "Audi", "Subaru", "Mazda", "Volkswagen", "Volvo", "Porsche"];
 const bodyTypes = [
-  { label: "Sedan", icon: "🚗" },
-  { label: "SUV", icon: "🚙" },
-  { label: "Truck", icon: "🛻" },
-  { label: "Minivan", icon: "🚐" },
-  { label: "Coupe", icon: "🏎️" },
-  { label: "Convertible", icon: "🏎️" },
-  { label: "Wagon", icon: "🚗" },
+  { label: "Sedan" },
+  { label: "SUV" },
+  { label: "Truck" },
+  { label: "Minivan" },
+  { label: "Coupe" },
+  { label: "Convertible" },
+  { label: "Wagon" },
 ];
 const drivetrains = ["FWD", "AWD", "4WD", "RWD"];
 const transmissions = ["Automatic", "Manual"];
@@ -126,7 +126,7 @@ function FilterSidebar({ filters, setFilters, onReset }: {
 
   return (
     <div className="space-y-1">
-      <div className="flex items-center justify-between px-1 pb-2">
+      <div className="flex items-center justify-between px-1 pb-3">
         <h3 className="text-sm font-semibold text-foreground">Filters</h3>
         <Button variant="ghost" size="sm" onClick={onReset} className="text-xs h-7" data-testid="button-reset-filters">
           Reset
@@ -189,7 +189,7 @@ function FilterSidebar({ filters, setFilters, onReset }: {
           </AccordionContent>
         </AccordionItem>
 
-        {/* Body Style — icon chips */}
+        {/* Body Style — text-only chips, no emoji */}
         <AccordionItem value="body" className="border-b-0">
           <AccordionTrigger className="text-xs font-semibold text-muted-foreground uppercase tracking-wider py-2.5 hover:no-underline">
             Body Style
@@ -201,13 +201,12 @@ function FilterSidebar({ filters, setFilters, onReset }: {
                   key={bt.label}
                   data-testid={`chip-body-${bt.label.toLowerCase()}`}
                   onClick={() => set("bodyType")(filters.bodyType === bt.label ? "" : bt.label)}
-                  className={`flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                  className={`rounded-md border px-2.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                     filters.bodyType === bt.label
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border text-muted-foreground hover:border-primary/40"
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border text-muted-foreground hover:border-border hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
-                  <span>{bt.icon}</span>
                   {bt.label}
                 </button>
               ))}
@@ -441,8 +440,8 @@ export default function BrowseListings() {
       {/* Top bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
         <div className="flex items-center gap-3 flex-1">
-          <h1 className="text-base font-bold text-foreground whitespace-nowrap" data-testid="text-result-count">
-            Showing {sortedListings.length} {sortedListings.length === 1 ? "vehicle" : "vehicles"}
+          <h1 className="text-base font-semibold text-foreground whitespace-nowrap" data-testid="text-result-count">
+            {sortedListings.length} {sortedListings.length === 1 ? "vehicle" : "vehicles"} found
           </h1>
           <div className="relative flex-1 max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -497,7 +496,7 @@ export default function BrowseListings() {
           {activeFilters.map((af) => (
             <span
               key={af.key}
-              className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2.5 py-1 text-xs font-medium"
+              className="inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-2.5 py-1 text-xs font-medium"
             >
               {af.label}
               <button
@@ -521,8 +520,8 @@ export default function BrowseListings() {
 
       <div className="flex gap-6">
         {/* Desktop sidebar */}
-        <aside className="hidden lg:block w-56 shrink-0">
-          <div className="sticky top-20 overflow-y-auto max-h-[calc(100vh-6rem)] pb-8 pr-2 rounded-lg bg-card/50 backdrop-blur-sm p-3 shadow-sm border border-border/50">
+        <aside className="hidden lg:block w-60 shrink-0">
+          <div className="sticky top-20 overflow-y-auto max-h-[calc(100vh-6rem)] pb-8 rounded-lg bg-background p-4 border border-border">
             <FilterSidebar filters={filters} setFilters={setFilters} onReset={resetFilters} />
           </div>
         </aside>

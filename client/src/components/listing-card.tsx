@@ -1,10 +1,18 @@
 import { Link } from "wouter";
 import { useMemo } from "react";
-import { Heart, MapPin, Car, MessageCircle } from "lucide-react";
+import { Heart, Car, MessageCircle } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
-import { Button } from "@/components/ui/button";
 import { getDealRating, getMonthlyPayment, formatPrice, formatMiles, estimateMarketValue } from "@/lib/deal-utils";
 import type { Listing } from "@shared/schema";
+
+// Deal indicator dot colors — subtle, small
+const dealDotColors: Record<string, string> = {
+  "Great Deal": "#248A52",
+  "Good Deal": "#248A52",
+  "Fair Deal": "#E6A317",
+  "Above Market": "#D93025",
+  "High Price": "#D93025",
+};
 
 export default function ListingCard({ listing }: { listing: Listing }) {
   const estimatedValue = useMemo(
@@ -17,104 +25,109 @@ export default function ListingCard({ listing }: { listing: Listing }) {
   );
   const monthly = useMemo(() => getMonthlyPayment(listing.price), [listing.price]);
 
-  return (
-    <div
-      data-testid={`card-listing-${listing.id}`}
-      className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-[1.01] hover:border-l-2"
-      style={{ '--hover-accent': deal.color } as React.CSSProperties}
-    >
-      {/* Image area — ~55% of card */}
-      <div className="relative aspect-[16/10] bg-gradient-to-br from-primary/10 via-muted to-muted/80 flex items-center justify-center overflow-hidden">
-        <Car className="h-12 w-12 text-muted-foreground/20" />
+  const dotColor = dealDotColors[deal.label] ?? "#6B7280";
 
-        {/* Deal badge — bottom left */}
-        <span
-          className="absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm"
-          style={{ backgroundColor: deal.color }}
-          data-testid={`badge-deal-${listing.id}`}
-        >
-          {deal.label === "Great Deal" && (
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+  return (
+    <Link href={`/listings/${listing.id}`}>
+      <div
+        data-testid={`card-listing-${listing.id}`}
+        className="listing-card group"
+      >
+        {/* Image area — 16:10 aspect ratio */}
+        <div className="relative aspect-[16/10] bg-muted flex items-center justify-center overflow-hidden">
+          <Car className="h-10 w-10 text-muted-foreground/20" />
+
+          {/* Favorite heart — top-right, white circle with backdrop blur */}
+          <button
+            className="absolute top-2.5 right-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm text-foreground/60 hover:text-foreground shadow-sm transition-all duration-200 hover:bg-white"
+            data-testid={`button-save-${listing.id}`}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          >
+            <Heart className="h-3.5 w-3.5" />
+          </button>
+
+          {/* Featured badge — gold, top-left, only for featured listings */}
+          {listing.featured && (
+            <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-semibold bg-amber-400 text-amber-950 tracking-wide">
+              FEATURED
             </span>
           )}
-          {deal.label}
-        </span>
+        </div>
 
-        {/* Seller badge — top right */}
-        <span className="absolute top-2 right-10 rounded-md bg-black/50 backdrop-blur-sm px-2 py-0.5 text-[10px] font-medium text-white">
-          {listing.sellerType === "dealer" ? "Dealer" : "Private"}
-        </span>
+        {/* Card content */}
+        <div className="flex flex-col p-4 gap-1">
+          {/* Price + monthly */}
+          <div className="flex items-baseline gap-2">
+            <p
+              className="text-lg font-bold text-foreground tabular-nums leading-none"
+              data-testid={`text-price-${listing.id}`}
+            >
+              {formatPrice(listing.price)}
+            </p>
+            <span className="text-xs text-muted-foreground tabular-nums">
+              Est. ${monthly.toLocaleString()}/mo
+            </span>
+          </div>
 
-        {/* Heart icon — top right */}
-        <button
-          className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 transition-colors"
-          data-testid={`button-save-${listing.id}`}
-          onClick={(e) => e.preventDefault()}
-        >
-          <Heart className="h-3.5 w-3.5" />
-        </button>
-      </div>
-
-      {/* Content */}
-      <div className="flex flex-1 flex-col p-3.5">
-        <Link href={`/listings/${listing.id}`}>
+          {/* Year Make Model */}
           <h3
-            className="text-sm font-bold text-foreground leading-snug group-hover:text-primary transition-colors cursor-pointer"
+            className="text-sm font-semibold text-foreground leading-snug mt-0.5"
             data-testid={`text-title-${listing.id}`}
           >
             {listing.year} {listing.make} {listing.model}
           </h3>
-        </Link>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          {listing.trim && `${listing.trim} · `}{formatMiles(listing.mileage)}
-        </p>
 
-        {listing.city && listing.state && (
-          <p className="mt-1.5 text-xs text-muted-foreground flex items-center gap-1">
-            <MapPin className="h-3 w-3 shrink-0" />
-            {listing.city}, {listing.state}
+          {/* Meta line — Trim · Mileage · Location */}
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {[
+              listing.trim,
+              formatMiles(listing.mileage),
+              listing.city && listing.state ? `${listing.city}, ${listing.state}` : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
           </p>
-        )}
 
-        <div className="mt-auto pt-3">
-          <p className="text-xl font-bold text-foreground tabular-nums" data-testid={`text-price-${listing.id}`}>
-            {formatPrice(listing.price)}
-          </p>
-          <span className="inline-flex items-center mt-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground tabular-nums">
-            ${monthly.toLocaleString()}/mo est.
-          </span>
-        </div>
-
-        <Link href={`/listings/${listing.id}`}>
-          <Button
-            variant="default"
-            className="mt-3 w-full text-xs h-9"
-            data-testid={`button-availability-${listing.id}`}
-          >
-            Check Availability
-          </Button>
-        </Link>
-
-        {/* WhatsApp / SMS indicators */}
-        {(listing.contactWhatsapp || listing.contactSms) && (
-          <div className="flex items-center gap-2 mt-2">
-            {listing.contactWhatsapp && (
-              <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-                <SiWhatsapp className="h-3 w-3 text-green-500" />
-                WhatsApp
+          {/* Bottom row — deal indicator + seller type + contact icons */}
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/60">
+            <div className="flex items-center gap-3">
+              {/* Deal indicator — small colored dot + text */}
+              <span
+                className="inline-flex items-center gap-1.5 text-[11px] font-medium"
+                style={{ color: dotColor }}
+                data-testid={`badge-deal-${listing.id}`}
+              >
+                <span
+                  className="inline-block h-1.5 w-1.5 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: dotColor }}
+                />
+                {deal.label}
               </span>
-            )}
-            {listing.contactSms && (
-              <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-                <MessageCircle className="h-3 w-3 text-blue-500" />
-                SMS
+
+              {/* Seller type — tiny text, not a pill */}
+              <span className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">
+                {listing.sellerType === "dealer" ? "Dealer" : "Private"}
               </span>
+            </div>
+
+            {/* WhatsApp/SMS icons — small, muted */}
+            {(listing.contactWhatsapp || listing.contactSms) && (
+              <div className="flex items-center gap-1.5">
+                {listing.contactWhatsapp && (
+                  <span className="inline-flex items-center" title="WhatsApp available">
+                    <SiWhatsapp className="h-3.5 w-3.5 text-muted-foreground/50" />
+                  </span>
+                )}
+                {listing.contactSms && (
+                  <span className="inline-flex items-center" title="SMS available">
+                    <MessageCircle className="h-3.5 w-3.5 text-muted-foreground/50" />
+                  </span>
+                )}
+              </div>
             )}
           </div>
-        )}
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }

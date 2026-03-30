@@ -20,13 +20,12 @@ import { SiWhatsapp } from "react-icons/si";
 import type { Listing, PriceEstimate } from "@shared/schema";
 import { useState, useEffect, useMemo } from "react";
 
-function SpecIcon({ icon, label, value }: { icon: JSX.Element; label: string; value: string | number | null | undefined }) {
+function SpecIcon({ label, value }: { icon?: JSX.Element; label: string; value: string | number | null | undefined }) {
   if (!value) return null;
   return (
-    <div className="flex flex-col items-center text-center p-3 rounded-lg bg-muted/50 transition-all duration-200 hover:bg-muted hover:shadow-sm">
-      <div className="text-primary mb-1.5">{icon}</div>
-      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
-      <p className="text-xs font-semibold text-foreground mt-0.5 leading-tight">{value}</p>
+    <div className="flex flex-col py-3 px-4 border border-border rounded-lg bg-background">
+      <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{label}</p>
+      <p className="text-sm font-semibold text-foreground mt-1 leading-tight">{value}</p>
     </div>
   );
 }
@@ -190,19 +189,19 @@ export default function ListingDetail() {
             <h1 className="text-xl font-bold text-foreground" data-testid="text-listing-title-mobile">
               {listing.title}
             </h1>
-            <p className="text-lg font-bold text-primary mt-1 tabular-nums">{formatPrice(listing.price)}</p>
+            <p className="text-lg font-bold text-foreground mt-1 tabular-nums">{formatPrice(listing.price)}</p>
           </div>
 
-          {/* Vehicle Overview — icon grid */}
-          <div className="grid grid-cols-4 gap-2" data-testid="spec-grid">
-            <SpecIcon icon={<Gauge className="h-5 w-5" />} label="Mileage" value={formatMiles(listing.mileage)} />
-            <SpecIcon icon={<Car className="h-5 w-5" />} label="Body" value={listing.bodyType} />
-            <SpecIcon icon={<Cog className="h-5 w-5" />} label="Drivetrain" value={listing.drivetrain} />
-            <SpecIcon icon={<Cog className="h-5 w-5" />} label="Transmission" value={listing.transmission} />
-            <SpecIcon icon={<Fuel className="h-5 w-5" />} label="Fuel" value={listing.fuelType} />
-            <SpecIcon icon={<Cog className="h-5 w-5" />} label="Engine" value={listing.engineSize} />
-            <SpecIcon icon={<Palette className="h-5 w-5" />} label="Exterior" value={listing.exteriorColor} />
-            <SpecIcon icon={<CircleDot className="h-5 w-5" />} label="Interior" value={listing.interiorColor} />
+          {/* Vehicle Overview — clean 2-column spec grid, no icon badges */}
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" data-testid="spec-grid">
+            <SpecIcon label="Mileage" value={formatMiles(listing.mileage)} />
+            <SpecIcon label="Body" value={listing.bodyType} />
+            <SpecIcon label="Drivetrain" value={listing.drivetrain} />
+            <SpecIcon label="Transmission" value={listing.transmission} />
+            <SpecIcon label="Fuel" value={listing.fuelType} />
+            <SpecIcon label="Engine" value={listing.engineSize} />
+            <SpecIcon label="Exterior" value={listing.exteriorColor} />
+            <SpecIcon label="Interior" value={listing.interiorColor} />
           </div>
 
           {/* Tabbed content */}
@@ -303,11 +302,15 @@ export default function ListingDetail() {
                   <>
                     <PriceBar estimate={estimate} price={listing.price} />
                     {deal && (
-                      <div className="mt-4 flex items-center gap-2">
+                      <div className="mt-3 flex items-center gap-2">
                         <span
-                          className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold text-white"
-                          style={{ backgroundColor: deal.color }}
+                          className="inline-flex items-center gap-1.5 text-xs font-medium"
+                          style={{ color: deal.color }}
                         >
+                          <span
+                            className="inline-block h-1.5 w-1.5 rounded-full"
+                            style={{ backgroundColor: deal.color }}
+                          />
                           {deal.label}
                         </span>
                         <span className="text-xs text-muted-foreground">{deal.description}</span>
@@ -335,7 +338,7 @@ export default function ListingDetail() {
         {/* Right sidebar — 1/3 */}
         <div className="space-y-4">
           {/* Price card */}
-          <Card className="p-5 sticky top-20 bg-gradient-to-b from-card to-card/80">
+          <Card className="p-5 sticky top-20">
             <h1 className="hidden lg:block text-lg font-bold text-foreground leading-tight" data-testid="text-listing-title">
               <span className="font-normal text-muted-foreground">{listing.year}</span>{" "}
               {listing.make} {listing.model}
@@ -355,24 +358,30 @@ export default function ListingDetail() {
               </p>
             </div>
 
-            {/* Deal badge */}
+            {/* Deal indicator — subtle dot + text, no colored banner */}
             {deal && (
-              <div className="mt-3 flex items-center gap-2">
+              <div className="mt-3 flex items-center gap-2" data-testid="badge-deal-detail">
                 <span
-                  className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold text-white"
-                  style={{ backgroundColor: deal.color }}
-                  data-testid="badge-deal-detail"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium"
+                  style={{ color: deal.color }}
                 >
+                  <span
+                    className="inline-block h-1.5 w-1.5 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: deal.color }}
+                  />
                   {deal.label}
                 </span>
                 <span className="text-xs text-muted-foreground">{deal.description}</span>
               </div>
             )}
 
-            <div className="mt-4 flex items-center gap-2">
-              <Badge variant={listing.sellerType === "dealer" ? "default" : "secondary"} data-testid="badge-seller-type">
+            <div className="mt-3 flex items-center gap-2">
+              <span
+                className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
+                data-testid="badge-seller-type"
+              >
                 {listing.sellerType === "dealer" ? "Dealer" : "Private Seller"}
-              </Badge>
+              </span>
               {listing.views !== undefined && listing.views > 0 && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Eye className="h-3 w-3" /> {listing.views} views
@@ -388,7 +397,11 @@ export default function ListingDetail() {
                   rel="noopener noreferrer"
                   className="w-full"
                 >
-                  <Button className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white" data-testid="button-whatsapp">
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2 border-green-600 text-green-700 hover:bg-green-50 dark:border-green-500 dark:text-green-400 dark:hover:bg-green-950"
+                    data-testid="button-whatsapp"
+                  >
                     <SiWhatsapp className="h-4 w-4" />
                     WhatsApp
                   </Button>
@@ -399,7 +412,7 @@ export default function ListingDetail() {
                   href={`sms:+1${listing.contactPhone.replace(/\D/g, "")}?body=${encodeURIComponent(`Hi, I'm interested in your ${listing.year} ${listing.make} ${listing.model} listed on CarShuk`)}`}
                   className="w-full"
                 >
-                  <Button variant="outline" className="w-full gap-2 border-blue-300 text-blue-600 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-950" data-testid="button-sms">
+                  <Button variant="outline" className="w-full gap-2" data-testid="button-sms">
                     <MessageCircle className="h-4 w-4" />
                     Text Message
                   </Button>
@@ -414,26 +427,26 @@ export default function ListingDetail() {
                 </a>
               )}
               {!listing.contactPhone && (
-                <Button className="w-full gap-2" data-testid="button-contact-seller">
+                <Button variant="outline" className="w-full gap-2" data-testid="button-contact-seller">
                   <Phone className="h-4 w-4" />
                   Contact Seller
                 </Button>
               )}
               <Button
-                variant={isFav ? "default" : "outline"}
-                className="w-full gap-2"
+                variant="ghost"
+                className="w-full gap-2 border border-border"
                 onClick={() => favMut.mutate()}
                 disabled={favMut.isPending}
                 data-testid="button-favorite"
               >
-                <Heart className={`h-4 w-4 ${isFav ? "fill-current" : ""}`} />
+                <Heart className={`h-4 w-4 ${isFav ? "fill-current text-primary" : ""}`} />
                 {isFav ? "Saved" : "Save"}
               </Button>
             </div>
           </Card>
 
           {/* Seller info */}
-          <Card className="p-5 border border-border/80 bg-gradient-to-b from-card to-card/90">
+          <Card className="p-5">
             <h3 className="text-sm font-semibold text-foreground mb-3">Seller Info</h3>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
