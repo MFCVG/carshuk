@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth-context";
+import heroBannerImg from "@assets/hero-banner.jpg";
 import { Loader2, ShieldCheck, Car, Users } from "lucide-react";
 
 export default function Auth() {
@@ -63,7 +64,7 @@ export default function Auth() {
         className="hidden lg:flex lg:w-[420px] shrink-0 flex-col justify-center px-12 py-16 relative overflow-hidden"
       >
         <img
-          src="/images/hero-banner.jpg"
+          src={heroBannerImg}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
         />

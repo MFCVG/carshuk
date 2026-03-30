@@ -12,6 +12,14 @@ import {
 import { useState } from "react";
 import { useLocation } from "wouter";
 import type { Listing } from "@shared/schema";
+import heroBannerImg from "@assets/hero-banner.jpg";
+import sellCtaBgImg from "@assets/sell-cta-bg.jpg";
+import categorySuvImg from "@assets/category-suv.jpg";
+import categorySedanImg from "@assets/category-sedan.jpg";
+import categoryTruckImg from "@assets/category-truck.jpg";
+import categoryElectricImg from "@assets/category-electric.jpg";
+import categoryCoupeImg from "@assets/category-coupe.jpg";
+import categoryMinivanImg from "@assets/category-minivan.jpg";
 
 const makes = ["Toyota", "Honda", "BMW", "Mercedes-Benz", "Tesla", "Ford", "Chevrolet", "Jeep", "Hyundai", "Lexus", "Audi", "Kia", "Nissan", "Subaru", "Mazda"];
 
@@ -30,12 +38,12 @@ const steps = [
 ];
 
 const categories = [
-  { name: "SUVs", type: "SUV", image: "/images/category-suv.jpg" },
-  { name: "Sedans", type: "Sedan", image: "/images/category-sedan.jpg" },
-  { name: "Trucks", type: "Truck", image: "/images/category-truck.jpg" },
-  { name: "Electric", type: "Electric", image: "/images/category-electric.jpg" },
-  { name: "Coupes", type: "Coupe", image: "/images/category-coupe.jpg" },
-  { name: "Minivans", type: "Minivan", image: "/images/category-minivan.jpg" },
+  { name: "SUVs", type: "SUV", image: categorySuvImg },
+  { name: "Sedans", type: "Sedan", image: categorySedanImg },
+  { name: "Trucks", type: "Truck", image: categoryTruckImg },
+  { name: "Electric", type: "Electric", image: categoryElectricImg },
+  { name: "Coupes", type: "Coupe", image: categoryCoupeImg },
+  { name: "Minivans", type: "Minivan", image: categoryMinivanImg },
 ];
 
 export default function HomePage() {
@@ -61,7 +69,7 @@ export default function HomePage() {
       <section className="relative min-h-[480px] sm:min-h-[520px] flex items-center overflow-hidden">
         {/* Background image */}
         <img
-          src="/images/hero-banner.jpg"
+          src={heroBannerImg}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -341,7 +349,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
         <div className="relative rounded-xl overflow-hidden">
           <img
-            src="/images/sell-cta-bg.jpg"
+            src={sellCtaBgImg}
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
           />
