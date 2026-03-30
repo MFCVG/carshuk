@@ -20,9 +20,54 @@ import {
 import type { VinDecodeResult, PriceEstimate } from "@shared/schema";
 
 const bodyTypes = ["Sedan", "SUV", "Truck", "Minivan", "Coupe", "Convertible", "Hatchback", "Wagon"];
-const transmissions = ["Automatic", "Manual"];
+const transmissions = ["Automatic", "Manual", "CVT"];
 const drivetrains = ["FWD", "AWD", "4WD", "RWD"];
 const fuelTypes = ["Gasoline", "Diesel", "Electric", "Hybrid", "Plug-in Hybrid"];
+
+// Normalize NHTSA raw values into our dropdown options
+function normalizeBodyType(raw: string): string {
+  if (!raw) return "";
+  const r = raw.toLowerCase();
+  if (r.includes("sedan") || r.includes("saloon")) return "Sedan";
+  if (r.includes("suv") || r.includes("sport utility") || r.includes("multipurpose")) return "SUV";
+  if (r.includes("truck") || r.includes("pickup")) return "Truck";
+  if (r.includes("minivan") || r.includes("van")) return "Minivan";
+  if (r.includes("coupe")) return "Coupe";
+  if (r.includes("convertible") || r.includes("cabriolet")) return "Convertible";
+  if (r.includes("hatchback")) return "Hatchback";
+  if (r.includes("wagon") || r.includes("estate")) return "Wagon";
+  return raw;
+}
+
+function normalizeTransmission(raw: string): string {
+  if (!raw) return "";
+  const r = raw.toLowerCase();
+  if (r.includes("cvt") || r.includes("continuously variable")) return "CVT";
+  if (r.includes("manual")) return "Manual";
+  if (r.includes("automatic") || r.includes("auto") || r.includes("dual-clutch") || r.includes("dct")) return "Automatic";
+  return "Automatic";
+}
+
+function normalizeDrivetrain(raw: string): string {
+  if (!raw) return "";
+  const r = raw.toLowerCase();
+  if (r.includes("awd") || r.includes("all-wheel") || r.includes("all wheel")) return "AWD";
+  if (r.includes("4wd") || r.includes("4x4") || r.includes("four wheel") || r.includes("4-wheel")) return "4WD";
+  if (r.includes("rwd") || r.includes("rear-wheel") || r.includes("rear wheel")) return "RWD";
+  if (r.includes("fwd") || r.includes("front-wheel") || r.includes("front wheel") || r.includes("4x2") || r.includes("2wd")) return "FWD";
+  return raw;
+}
+
+function normalizeFuelType(raw: string): string {
+  if (!raw) return "";
+  const r = raw.toLowerCase();
+  if (r.includes("plug-in") || r.includes("plug in") || r.includes("phev")) return "Plug-in Hybrid";
+  if (r.includes("hybrid")) return "Hybrid";
+  if (r.includes("electric") || r.includes("bev")) return "Electric";
+  if (r.includes("diesel")) return "Diesel";
+  if (r.includes("gasoline") || r.includes("gas") || r.includes("petrol") || r.includes("flex")) return "Gasoline";
+  return raw;
+}
 const conditions = ["new", "excellent", "good", "fair", "poor"];
 const titleStatuses = ["clean", "salvage", "rebuilt", "flood", "lemon"];
 
@@ -276,10 +321,12 @@ export default function CreateListing() {
         model: data.model || f.model,
         year: data.year ? String(data.year) : f.year,
         trim: data.trim || f.trim,
-        bodyType: data.bodyType || f.bodyType,
-        transmission: data.transmission || f.transmission,
-        drivetrain: data.drivetrain || f.drivetrain,
-        fuelType: data.fuelType || f.fuelType,
+        bodyType: normalizeBodyType(data.bodyType || "") || f.bodyType,
+        exteriorColor: (data as any).exteriorColor || f.exteriorColor,
+        interiorColor: (data as any).interiorColor || f.interiorColor,
+        transmission: normalizeTransmission(data.transmission || "") || f.transmission,
+        drivetrain: normalizeDrivetrain(data.drivetrain || "") || f.drivetrain,
+        fuelType: normalizeFuelType(data.fuelType || "") || f.fuelType,
         engineSize: data.engineSize || f.engineSize,
       }));
       setVinDecoded(true);
