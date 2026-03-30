@@ -85,9 +85,11 @@ export interface IStorage {
   getUser(id: number): User | undefined;
   getUserByUsername(username: string): User | undefined;
   createUser(user: InsertUser): User;
+  getAllUsers(): User[];
   // Listings
   getListing(id: number): Listing | undefined;
   getListings(filters?: Record<string, any>): Listing[];
+  getAllListings(): Listing[];
   getFeaturedListings(): Listing[];
   getUserListings(userId: number): Listing[];
   createListing(listing: InsertListing): Listing;
@@ -117,6 +119,10 @@ export class DatabaseStorage implements IStorage {
 
   createUser(insertUser: InsertUser): User {
     return db.insert(users).values({ ...insertUser, createdAt: new Date().toISOString() }).returning().get();
+  }
+
+  getAllUsers(): User[] {
+    return db.select().from(users).all();
   }
 
   // Listings
@@ -155,6 +161,10 @@ export class DatabaseStorage implements IStorage {
       .where(and(...conditions))
       .orderBy(desc(listings.createdAt))
       .all();
+  }
+
+  getAllListings(): Listing[] {
+    return db.select().from(listings).orderBy(desc(listings.createdAt)).all();
   }
 
   getFeaturedListings(): Listing[] {

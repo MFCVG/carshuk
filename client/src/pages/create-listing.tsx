@@ -15,7 +15,7 @@ import { useAuth } from "@/lib/auth-context";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import {
   Loader2, CheckCircle2, Search, ArrowLeft, ArrowRight, DollarSign,
-  Car, Cog, Shield, Factory, Zap, Database,
+  Car, Cog, Shield, Factory, Zap, Database, Sparkles,
 } from "lucide-react";
 import type { VinDecodeResult, PriceEstimate } from "@shared/schema";
 
@@ -311,6 +311,7 @@ export default function CreateListing() {
   const [vinDecoded, setVinDecoded] = useState(false);
   const [vinData, setVinData] = useState<VinDecodeResult | null>(null);
   const [priceEstimate, setPriceEstimate] = useState<PriceEstimate | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const set = (key: keyof FormData) => (val: string | boolean) =>
     setForm((f) => ({ ...f, [key]: val }));
@@ -408,6 +409,27 @@ export default function CreateListing() {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     },
   });
+
+  const handleGenerateDescription = async () => {
+    setIsGenerating(true);
+    try {
+      const res = await apiRequest("POST", "/api/generate-description", {
+        make: form.make, model: form.model, year: Number(form.year),
+        trim: form.trim, mileage: Number(form.mileage), condition: form.condition,
+        bodyType: form.bodyType, exteriorColor: form.exteriorColor,
+        interiorColor: form.interiorColor, drivetrain: form.drivetrain, fuelType: form.fuelType,
+      });
+      const data = await res.json();
+      if (data.description) {
+        set("description")(data.description);
+        toast({ title: "Description generated" });
+      }
+    } catch (err: any) {
+      toast({ title: "Generation failed", description: err.message, variant: "destructive" });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   if (!user) {
     return (
@@ -562,9 +584,24 @@ export default function CreateListing() {
               </Select>
             </FormField>
             <div className="sm:col-span-2">
-              <FormField label="Description">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Description</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateDescription}
+                    disabled={isGenerating || !form.make || !form.model}
+                    className="gap-2 rounded-full border-primary text-primary hover:bg-primary/10 h-7 text-xs"
+                    data-testid="button-ai-description"
+                  >
+                    {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                    {isGenerating ? "Generating..." : "AI Generate Description"}
+                  </Button>
+                </div>
                 <Textarea value={form.description} onChange={(e) => set("description")(e.target.value)} rows={3} placeholder="Describe your vehicle…" data-testid="input-description" />
-              </FormField>
+              </div>
             </div>
           </div>
 

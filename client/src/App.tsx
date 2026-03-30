@@ -14,6 +14,7 @@ import ListingDetail from "@/pages/listing-detail";
 import CreateListing from "@/pages/create-listing";
 import Auth from "@/pages/auth";
 import Dashboard from "@/pages/dashboard";
+import AdminDashboard from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 import { useEffect } from "react";
 import { apiRequest } from "@/lib/queryClient";
@@ -34,6 +35,7 @@ function AppRouter() {
       <Route path="/sell" component={CreateListing} />
       <Route path="/auth" component={Auth} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
