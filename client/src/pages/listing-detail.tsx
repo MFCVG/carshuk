@@ -390,6 +390,13 @@ export default function ListingDetail() {
             </div>
 
             <div className="mt-5 space-y-2">
+              {/* Primary CTA — Check Availability */}
+              <Button
+                className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                data-testid="button-check-availability"
+              >
+                Check Availability
+              </Button>
               {listing.contactPhone && listing.contactWhatsapp && (
                 <a
                   href={`https://wa.me/1${listing.contactPhone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi, I'm interested in your ${listing.year} ${listing.make} ${listing.model} listed on CarShuk`)}`}

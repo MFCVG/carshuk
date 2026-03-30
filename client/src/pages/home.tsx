@@ -48,25 +48,26 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
 
-      {/* ── Hero — editorial white, no gradient ── */}
-      <section className="border-b border-border/60">
+      {/* ── Hero — light cool-gray bg, coral accent headline ── */}
+      <section className="bg-muted/50 border-b border-border/60">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="max-w-2xl">
             <h1
-              className="text-3xl font-extrabold text-foreground leading-tight tracking-tight"
+              className="text-3xl font-extrabold text-foreground leading-tight tracking-tight sm:text-4xl"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", letterSpacing: "-0.02em" }}
               data-testid="text-hero-title"
             >
-              The smarter way to<br />buy and sell cars.
+              Find your{" "}
+              <span style={{ color: "hsl(16 85% 55%)" }}>next car</span>
             </h1>
             <p className="mt-4 text-base text-muted-foreground leading-relaxed max-w-lg">
-              Verified sellers. Transparent pricing. No runaround.
+              Search thousands of listings from private sellers and trusted dealers
             </p>
           </div>
 
-          {/* Search bar — full-width, substantial */}
+          {/* Segmented search bar — CG-style */}
           <div className="mt-8 max-w-2xl">
-            <div className="flex flex-col sm:flex-row items-stretch gap-0 rounded-lg border border-border bg-background overflow-hidden shadow-sm">
+            <div className="flex flex-col sm:flex-row items-stretch gap-0 rounded-lg bg-card overflow-hidden shadow-sm border border-border">
               <Select value={searchMake} onValueChange={setSearchMake}>
                 <SelectTrigger
                   className="border-0 border-r border-border rounded-none h-12 flex-1 text-sm focus:ring-0"
@@ -84,7 +85,7 @@ export default function HomePage() {
                 placeholder="ZIP Code"
                 value={searchZip}
                 onChange={(e) => setSearchZip(e.target.value)}
-                className="border-0 rounded-none h-12 w-full sm:max-w-[140px] text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="border-0 border-r border-border rounded-none h-12 w-full sm:max-w-[140px] text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
                 data-testid="input-hero-zip"
               />
               <Button
@@ -93,9 +94,20 @@ export default function HomePage() {
                 data-testid="button-hero-search"
               >
                 <Search className="h-4 w-4" />
-                Search Cars
+                Search
               </Button>
             </div>
+          </div>
+
+          {/* Quick filter pills */}
+          <div className="mt-5 flex flex-wrap gap-2 max-w-2xl">
+            {["SUV", "Under $20k", "Low Mileage", "Electric", "AWD"].map((pill) => (
+              <Link key={pill} href={`/browse?q=${encodeURIComponent(pill)}`}>
+                <span className="inline-flex items-center rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors cursor-pointer">
+                  {pill}
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -120,7 +132,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── New Listings ── */}
+      {/* ── Featured Listings — 3-column CG-style ── */}
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
         <div className="flex items-end justify-between mb-8">
           <div>
@@ -128,7 +140,7 @@ export default function HomePage() {
               className="text-lg font-bold text-foreground tracking-tight"
               data-testid="text-new-listings"
             >
-              New Listings
+              Featured Listings
             </h2>
             <p className="text-sm text-muted-foreground mt-1">Recently added vehicles from our community</p>
           </div>
@@ -142,8 +154,8 @@ export default function HomePage() {
           </Link>
         </div>
         {isLoading ? (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="space-y-3">
                 <Skeleton className="aspect-[16/10] w-full rounded-lg" />
                 <Skeleton className="h-4 w-3/4" />
@@ -153,12 +165,28 @@ export default function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {listings?.slice(0, 4).map((listing) => (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {listings?.slice(0, 3).map((listing) => (
               <ListingCard key={listing.id} listing={listing} />
             ))}
           </div>
         )}
+      </section>
+
+      {/* ── Browse by Category — horizontal pills ── */}
+      <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6">
+        <h2 className="text-lg font-bold text-foreground tracking-tight mb-4" data-testid="text-browse-category">
+          Browse by Category
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {["SUV", "Sedan", "Truck", "Coupe", "Minivan", "Electric"].map((cat) => (
+            <Link key={cat} href={`/browse?bodyType=${encodeURIComponent(cat)}`}>
+              <span className="inline-flex items-center rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors cursor-pointer">
+                {cat}
+              </span>
+            </Link>
+          ))}
+        </div>
       </section>
 
       {/* ── Why CarShuk — clean, no teal tinted backgrounds ── */}

@@ -58,10 +58,10 @@ export default function Auth() {
 
   return (
     <div className="min-h-[calc(100vh-56px)] flex">
-      {/* Left branding panel — deep teal, white text */}
+      {/* Left branding panel — deep navy, white text */}
       <div
         className="hidden lg:flex lg:w-[420px] shrink-0 flex-col justify-center px-12 py-16"
-        style={{ backgroundColor: "hsl(175 84% 22%)" }}
+        style={{ backgroundColor: "hsl(215 70% 22%)" }}
       >
         {/* Logo mark */}
         <div className="mb-10">

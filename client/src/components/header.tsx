@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, Moon, Sun, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, Moon, Sun, LogOut, LayoutDashboard, Heart } from "lucide-react";
 import { useState } from "react";
 
 function CarShukLogo({ className = "" }: { className?: string }) {
@@ -65,8 +65,8 @@ export default function Header() {
   }
 
   const navLinks = [
-    { href: "/browse", label: "Browse Cars" },
-    { href: "/sell", label: "Sell My Car" },
+    { href: "/browse", label: "Browse" },
+    { href: "/sell", label: "Sell" },
   ];
 
   if (user) {
@@ -101,6 +101,20 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-1.5">
+          {/* Saved/favorites link */}
+          {user && (
+            <Link href="/dashboard">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                data-testid="button-saved"
+              >
+                <Heart className="h-4 w-4" />
+              </Button>
+            </Link>
+          )}
+
           {/* Dark mode toggle */}
           <Button
             variant="ghost"

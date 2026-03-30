@@ -1,17 +1,18 @@
 import { Link } from "wouter";
 import { useMemo } from "react";
-import { Heart, Car, MessageCircle } from "lucide-react";
+import { Heart, Car, MessageCircle, MapPin } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
+import { Button } from "@/components/ui/button";
 import { getDealRating, getMonthlyPayment, formatPrice, formatMiles, estimateMarketValue } from "@/lib/deal-utils";
 import type { Listing } from "@shared/schema";
 
-// Deal indicator dot colors — subtle, small
+// Deal indicator dot colors — per spec
 const dealDotColors: Record<string, string> = {
-  "Great Deal": "#248A52",
-  "Good Deal": "#248A52",
-  "Fair Deal": "#E6A317",
-  "Above Market": "#D93025",
-  "High Price": "#D93025",
+  "Great Deal": "hsl(152 72% 38%)",
+  "Good Deal": "hsl(152 60% 44%)",
+  "Fair Deal": "hsl(38 90% 50%)",
+  "Above Market": "hsl(15 80% 50%)",
+  "High Price": "hsl(15 80% 50%)",
 };
 
 export default function ListingCard({ listing }: { listing: Listing }) {
@@ -37,7 +38,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         <div className="relative aspect-[16/10] bg-muted flex items-center justify-center overflow-hidden">
           <Car className="h-10 w-10 text-muted-foreground/20" />
 
-          {/* Favorite heart — top-right, white circle with backdrop blur */}
+          {/* Favorite heart — top-right */}
           <button
             className="absolute top-2.5 right-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm text-foreground/60 hover:text-foreground shadow-sm transition-all duration-200 hover:bg-white"
             data-testid={`button-save-${listing.id}`}
@@ -46,86 +47,88 @@ export default function ListingCard({ listing }: { listing: Listing }) {
             <Heart className="h-3.5 w-3.5" />
           </button>
 
-          {/* Featured badge — gold, top-left, only for featured listings */}
+          {/* Badge — bottom-left */}
           {listing.featured && (
-            <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-semibold bg-amber-400 text-amber-950 tracking-wide">
+            <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold bg-amber-400 text-amber-950 tracking-wide">
               FEATURED
             </span>
           )}
         </div>
 
-        {/* Card content */}
-        <div className="flex flex-col p-4 gap-1">
-          {/* Price + monthly */}
-          <div className="flex items-baseline gap-2">
+        {/* Card content — CG-style vertical layout */}
+        <div className="flex flex-col p-4 gap-1.5">
+          {/* Year Make Model — bold, ~16px */}
+          <h3
+            className="text-base font-bold text-foreground leading-snug"
+            data-testid={`text-title-${listing.id}`}
+          >
+            {listing.year} {listing.make} {listing.model}
+          </h3>
+
+          {/* Trim · Drivetrain · Mileage — muted, ~13px */}
+          <p className="text-[13px] text-muted-foreground leading-relaxed">
+            {[
+              listing.trim,
+              listing.drivetrain,
+              formatMiles(listing.mileage),
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+
+          {/* Location with pin icon */}
+          {listing.city && listing.state && (
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              {listing.city}, {listing.state}
+            </p>
+          )}
+
+          {/* Deal badge + price row */}
+          <div className="flex items-center justify-between mt-1">
+            <span
+              className="inline-flex items-center gap-1.5 text-xs font-medium"
+              style={{ color: dotColor }}
+              data-testid={`badge-deal-${listing.id}`}
+            >
+              <span
+                className="inline-block h-1.5 w-1.5 rounded-full flex-shrink-0"
+                style={{ backgroundColor: dotColor }}
+              />
+              {deal.label}
+            </span>
             <p
               className="text-lg font-bold text-foreground tabular-nums leading-none"
               data-testid={`text-price-${listing.id}`}
             >
               {formatPrice(listing.price)}
             </p>
+          </div>
+
+          {/* Monthly estimate + contact icons */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              {listing.contactWhatsapp && (
+                <SiWhatsapp className="h-3.5 w-3.5 text-muted-foreground/50" title="WhatsApp available" />
+              )}
+              {listing.contactSms && (
+                <MessageCircle className="h-3.5 w-3.5 text-muted-foreground/50" title="SMS available" />
+              )}
+            </div>
             <span className="text-xs text-muted-foreground tabular-nums">
               Est. ${monthly.toLocaleString()}/mo
             </span>
           </div>
 
-          {/* Year Make Model */}
-          <h3
-            className="text-sm font-semibold text-foreground leading-snug mt-0.5"
-            data-testid={`text-title-${listing.id}`}
+          {/* Check Availability button */}
+          <Button
+            variant="outline"
+            className="w-full mt-1 h-9 text-sm font-medium border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            data-testid={`button-check-avail-${listing.id}`}
           >
-            {listing.year} {listing.make} {listing.model}
-          </h3>
-
-          {/* Meta line — Trim · Mileage · Location */}
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            {[
-              listing.trim,
-              formatMiles(listing.mileage),
-              listing.city && listing.state ? `${listing.city}, ${listing.state}` : null,
-            ]
-              .filter(Boolean)
-              .join(" · ")}
-          </p>
-
-          {/* Bottom row — deal indicator + seller type + contact icons */}
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/60">
-            <div className="flex items-center gap-3">
-              {/* Deal indicator — small colored dot + text */}
-              <span
-                className="inline-flex items-center gap-1.5 text-[11px] font-medium"
-                style={{ color: dotColor }}
-                data-testid={`badge-deal-${listing.id}`}
-              >
-                <span
-                  className="inline-block h-1.5 w-1.5 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: dotColor }}
-                />
-                {deal.label}
-              </span>
-
-              {/* Seller type — tiny text, not a pill */}
-              <span className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">
-                {listing.sellerType === "dealer" ? "Dealer" : "Private"}
-              </span>
-            </div>
-
-            {/* WhatsApp/SMS icons — small, muted */}
-            {(listing.contactWhatsapp || listing.contactSms) && (
-              <div className="flex items-center gap-1.5">
-                {listing.contactWhatsapp && (
-                  <span className="inline-flex items-center" title="WhatsApp available">
-                    <SiWhatsapp className="h-3.5 w-3.5 text-muted-foreground/50" />
-                  </span>
-                )}
-                {listing.contactSms && (
-                  <span className="inline-flex items-center" title="SMS available">
-                    <MessageCircle className="h-3.5 w-3.5 text-muted-foreground/50" />
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
+            Check Availability
+          </Button>
         </div>
       </div>
     </Link>

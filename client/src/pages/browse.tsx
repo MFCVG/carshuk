@@ -520,7 +520,7 @@ export default function BrowseListings() {
 
       <div className="flex gap-6">
         {/* Desktop sidebar */}
-        <aside className="hidden lg:block w-60 shrink-0">
+        <aside className="hidden lg:block w-[280px] shrink-0">
           <div className="sticky top-20 overflow-y-auto max-h-[calc(100vh-6rem)] pb-8 rounded-lg bg-background p-4 border border-border">
             <FilterSidebar filters={filters} setFilters={setFilters} onReset={resetFilters} />
           </div>
