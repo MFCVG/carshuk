@@ -52,7 +52,10 @@ export default function ListingCard({ listing }: { listing: Listing }) {
               loading="lazy"
             />
           ) : (
-            <Car className="h-10 w-10 text-muted-foreground/30" />
+            <div className="flex flex-col items-center justify-center gap-1.5">
+              <Car className="h-10 w-10 text-muted-foreground/30" />
+              <span className="text-xs text-muted-foreground/50 font-medium">No photos yet</span>
+            </div>
           )}
 
           {/* Favorite heart — top-right */}

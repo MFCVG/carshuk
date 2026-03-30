@@ -15,6 +15,7 @@ import {
   Car, Heart, MapPin, Gauge, Shield, AlertTriangle,
   CheckCircle2, Phone, ArrowLeft, Eye, Fuel, Cog,
   Palette, CircleDot, Camera, ChevronLeft, ChevronRight, MessageCircle,
+  ExternalLink, Star, ChevronDown, ChevronUp, ImageOff, Loader2,
 } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import type { Listing, PriceEstimate } from "@shared/schema";
@@ -64,6 +65,50 @@ function PriceBar({ estimate, price }: { estimate: PriceEstimate; price: number 
   );
 }
 
+interface VehicleHistoryData {
+  recalls: Array<{
+    component: string;
+    summary: string;
+    consequence: string;
+    remedy: string;
+    reportDate: string;
+    nhtsaId: string;
+  }>;
+  complaints: Array<{
+    component: string;
+    summary: string;
+    dateOfIncident: string;
+    crash: boolean;
+    fire: boolean;
+    numberOfInjuries: number;
+  }>;
+  safetyRatings: {
+    overallRating: string;
+    frontCrashRating: string;
+    sideCrashRating: string;
+    rolloverRating: string;
+  } | null;
+}
+
+function StarRating({ rating, label }: { rating: string; label: string }) {
+  const num = parseInt(rating);
+  if (isNaN(num) || num < 1) return null;
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-muted-foreground w-28 shrink-0">{label}</span>
+      <div className="flex gap-0.5">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Star
+            key={i}
+            className={`h-3.5 w-3.5 ${i < num ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
+          />
+        ))}
+      </div>
+      <span className="text-xs font-medium text-foreground">{num}/5</span>
+    </div>
+  );
+}
+
 export default function ListingDetail() {
   const [, params] = useRoute("/listings/:id");
   const id = params?.id;
@@ -100,6 +145,18 @@ export default function ListingDetail() {
       return res.json();
     },
   });
+
+  const { data: vehicleHistory, isLoading: historyLoading } = useQuery<VehicleHistoryData>({
+    queryKey: ["/api/vehicle-history", listing?.make, listing?.model, listing?.year],
+    enabled: !!listing?.make && !!listing?.model && !!listing?.year,
+    queryFn: async () => {
+      const res = await apiRequest("GET", `/api/vehicle-history/${encodeURIComponent(listing!.make)}/${encodeURIComponent(listing!.model)}/${listing!.year}`);
+      return res.json();
+    },
+  });
+
+  const [recallsExpanded, setRecallsExpanded] = useState(false);
+  const [complaintsExpanded, setComplaintsExpanded] = useState(false);
 
   useEffect(() => {
     if (favorites && id) {
@@ -184,7 +241,13 @@ export default function ListingDetail() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <Car className="h-20 w-20 text-muted-foreground/30" />
+              <div className="flex flex-col items-center justify-center gap-2">
+                <ImageOff className="h-12 w-12 text-muted-foreground/30" />
+                <p className="text-sm font-medium text-muted-foreground">No photos provided by seller</p>
+                {user && listing.userId === user.id && (
+                  <p className="text-xs text-primary">Edit your listing to add photos</p>
+                )}
+              </div>
             )}
             {/* Photo count badge */}
             <div className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-md bg-black/50 backdrop-blur-sm px-2.5 py-1 text-xs text-white">
@@ -283,13 +346,133 @@ export default function ListingDetail() {
                     </p>
                   </div>
                 ) : null}
-                <div className="rounded-lg border border-border bg-muted/30 p-6 text-center">
-                  <Shield className="h-8 w-8 text-muted-foreground/40 mx-auto mb-3" />
-                  <p className="text-sm font-medium text-foreground">Vehicle history not available</p>
-                  <p className="text-xs text-muted-foreground mt-1.5 max-w-sm mx-auto leading-relaxed">
-                    We recommend requesting a vehicle history report from the seller or running the VIN through a service like Carfax or AutoCheck before purchasing.
-                  </p>
-                </div>
+
+                {historyLoading ? (
+                  <div className="rounded-lg border border-border bg-muted/30 p-6 text-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Loading vehicle history...</p>
+                  </div>
+                ) : vehicleHistory ? (
+                  <div className="space-y-4">
+                    {/* Safety Ratings */}
+                    {vehicleHistory.safetyRatings && (
+                      <div className="rounded-lg border border-border p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Shield className="h-4 w-4 text-primary" />
+                          <h4 className="text-sm font-semibold text-foreground">NHTSA Safety Ratings</h4>
+                        </div>
+                        <div className="space-y-2">
+                          <StarRating rating={vehicleHistory.safetyRatings.overallRating} label="Overall" />
+                          <StarRating rating={vehicleHistory.safetyRatings.frontCrashRating} label="Front Crash" />
+                          <StarRating rating={vehicleHistory.safetyRatings.sideCrashRating} label="Side Crash" />
+                          <StarRating rating={vehicleHistory.safetyRatings.rolloverRating} label="Rollover" />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Recalls */}
+                    <div className="rounded-lg border border-border p-4">
+                      <button
+                        className="flex items-center justify-between w-full"
+                        onClick={() => setRecallsExpanded(!recallsExpanded)}
+                      >
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-amber-500" />
+                          <h4 className="text-sm font-semibold text-foreground">
+                            Recalls ({vehicleHistory.recalls.length})
+                          </h4>
+                        </div>
+                        {vehicleHistory.recalls.length > 0 && (
+                          recallsExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </button>
+                      {vehicleHistory.recalls.length === 0 ? (
+                        <p className="mt-2 text-xs text-muted-foreground">No recalls found for this vehicle.</p>
+                      ) : recallsExpanded && (
+                        <div className="mt-3 space-y-3">
+                          {vehicleHistory.recalls.map((recall, i) => (
+                            <div key={i} className="rounded-md bg-muted/50 p-3 text-xs">
+                              <p className="font-medium text-foreground">{recall.component}</p>
+                              <p className="text-muted-foreground mt-1 leading-relaxed">{recall.summary}</p>
+                              {recall.remedy && (
+                                <p className="text-muted-foreground mt-1"><span className="font-medium text-foreground">Remedy:</span> {recall.remedy}</p>
+                              )}
+                              <p className="text-muted-foreground/60 mt-1 text-[10px]">
+                                {recall.reportDate} · NHTSA #{recall.nhtsaId}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Complaints */}
+                    <div className="rounded-lg border border-border p-4">
+                      <button
+                        className="flex items-center justify-between w-full"
+                        onClick={() => setComplaintsExpanded(!complaintsExpanded)}
+                      >
+                        <div className="flex items-center gap-2">
+                          <MessageCircle className="h-4 w-4 text-blue-500" />
+                          <h4 className="text-sm font-semibold text-foreground">
+                            NHTSA Complaints ({vehicleHistory.complaints.length})
+                          </h4>
+                        </div>
+                        {vehicleHistory.complaints.length > 0 && (
+                          complaintsExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </button>
+                      {vehicleHistory.complaints.length === 0 ? (
+                        <p className="mt-2 text-xs text-muted-foreground">No complaints filed for this vehicle.</p>
+                      ) : complaintsExpanded && (
+                        <div className="mt-3 space-y-3">
+                          {vehicleHistory.complaints.slice(0, 10).map((complaint, i) => (
+                            <div key={i} className="rounded-md bg-muted/50 p-3 text-xs">
+                              <p className="font-medium text-foreground">{complaint.component}</p>
+                              <p className="text-muted-foreground mt-1 leading-relaxed">{complaint.summary}</p>
+                              <div className="flex gap-3 mt-1 text-[10px] text-muted-foreground/60">
+                                {complaint.dateOfIncident && <span>{complaint.dateOfIncident}</span>}
+                                {complaint.crash && <span className="text-red-500">Crash reported</span>}
+                                {complaint.fire && <span className="text-red-500">Fire reported</span>}
+                              </div>
+                            </div>
+                          ))}
+                          {vehicleHistory.complaints.length > 10 && (
+                            <p className="text-xs text-muted-foreground text-center">Showing 10 of {vehicleHistory.complaints.length} complaints</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* External links */}
+                    <div className="flex gap-3">
+                      <a
+                        href={`https://www.carfax.com/vehicle/${listing.vin || `${listing.year}-${listing.make}-${listing.model}`}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                      >
+                        <ExternalLink className="h-3 w-3" /> Carfax Report
+                      </a>
+                      <a
+                        href={`https://www.autocheck.com/vehiclehistory/search?vin=${listing.vin || ""}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                      >
+                        <ExternalLink className="h-3 w-3" /> AutoCheck Report
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-border bg-muted/30 p-6 text-center">
+                    <Shield className="h-8 w-8 text-muted-foreground/40 mx-auto mb-3" />
+                    <p className="text-sm font-medium text-foreground">Vehicle history not available</p>
+                    <p className="text-xs text-muted-foreground mt-1.5 max-w-sm mx-auto leading-relaxed">
+                      We recommend requesting a vehicle history report from the seller or running the VIN through a service like Carfax or AutoCheck before purchasing.
+                    </p>
+                  </div>
+                )}
               </Card>
             </TabsContent>
 

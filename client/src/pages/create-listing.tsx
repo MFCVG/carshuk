@@ -15,7 +15,7 @@ import { useAuth } from "@/lib/auth-context";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import {
   Loader2, CheckCircle2, Search, ArrowLeft, ArrowRight, DollarSign,
-  Car, Cog, Shield, Factory, Zap, Database, Sparkles,
+  Car, Cog, Shield, Factory, Zap, Database, Sparkles, Camera,
 } from "lucide-react";
 import type { VinDecodeResult, PriceEstimate } from "@shared/schema";
 
@@ -443,7 +443,7 @@ export default function CreateListing() {
     );
   }
 
-  const stepLabels = ["VIN Entry", "Vehicle Details", "Listing Details", "Review"];
+  const stepLabels = ["VIN Entry", "Vehicle Details", "Listing Details", "Photos", "Review"];
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
@@ -459,6 +459,14 @@ export default function CreateListing() {
           <p className="text-sm text-muted-foreground mb-4">
             We'll auto-fill vehicle details from the 17-character VIN. You can also skip this step.
           </p>
+          <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 mb-5">
+            <p className="text-sm font-medium text-foreground">Why add your VIN?</p>
+            <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
+              <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Auto-fills your vehicle details — make, model, trim, engine, and more</li>
+              <li className="flex items-start gap-2"><DollarSign className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Enables accurate market price suggestions for your listing</li>
+              <li className="flex items-start gap-2"><Shield className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Lets buyers verify vehicle history, building trust and selling faster</li>
+            </ul>
+          </div>
           <div className="flex gap-3">
             <Input
               placeholder="e.g. 1HGBH41JXMN109186"
@@ -608,14 +616,35 @@ export default function CreateListing() {
           <Separator className="my-5" />
           <h3 className="text-sm font-semibold text-foreground mb-3">Location</h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <FormField label="ZIP Code">
+              <Input
+                value={form.zipCode}
+                onChange={async (e) => {
+                  const zip = e.target.value.replace(/\D/g, "").slice(0, 5);
+                  set("zipCode")(zip);
+                  if (zip.length === 5) {
+                    try {
+                      const res = await fetch(`https://api.zippopotam.us/us/${zip}`);
+                      if (res.ok) {
+                        const data = await res.json();
+                        if (data.places && data.places.length > 0) {
+                          set("city")(data.places[0]["place name"]);
+                          set("state")(data.places[0]["state abbreviation"]);
+                        }
+                      }
+                    } catch {}
+                  }
+                }}
+                placeholder="e.g. 08701"
+                maxLength={5}
+                data-testid="input-zip"
+              />
+            </FormField>
             <FormField label="City">
-              <Input value={form.city} onChange={(e) => set("city")(e.target.value)} data-testid="input-city" />
+              <Input value={form.city} onChange={(e) => set("city")(e.target.value)} placeholder="Auto-filled from ZIP" data-testid="input-city" />
             </FormField>
             <FormField label="State">
-              <Input value={form.state} onChange={(e) => set("state")(e.target.value)} placeholder="e.g. NY" data-testid="input-state" />
-            </FormField>
-            <FormField label="ZIP Code">
-              <Input value={form.zipCode} onChange={(e) => set("zipCode")(e.target.value)} data-testid="input-zip" />
+              <Input value={form.state} onChange={(e) => set("state")(e.target.value)} placeholder="Auto-filled" maxLength={2} data-testid="input-state" />
             </FormField>
           </div>
 
@@ -717,8 +746,71 @@ export default function CreateListing() {
         </Card>
       )}
 
-      {/* Step 4: Review */}
+      {/* Step 4: Photos */}
       {step === 4 && (
+        <Card className="p-6">
+          <div className="flex items-center gap-2 mb-1">
+            <Camera className="h-5 w-5 text-primary" />
+            <h2 className="text-base font-semibold text-foreground">Add Photos</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-5">
+            Great photos help your car sell faster. Here's what buyers want to see:
+          </p>
+
+          {/* 9-photo guide grid */}
+          <div className="grid grid-cols-3 gap-3 mb-5">
+            {[
+              { label: "Front View", desc: "Straight-on from the front" },
+              { label: "Rear View", desc: "Straight-on from the back" },
+              { label: "Driver Side", desc: "Full side profile" },
+              { label: "Passenger Side", desc: "Full side profile" },
+              { label: "Dashboard", desc: "Full dashboard & console" },
+              { label: "Front Seats", desc: "Interior from rear" },
+              { label: "Rear Seats", desc: "Interior from front" },
+              { label: "Odometer", desc: "Current mileage reading" },
+              { label: "Engine Bay", desc: "Under the hood" },
+            ].map((photo, i) => (
+              <div key={i} className="rounded-lg border-2 border-dashed border-border bg-muted/30 p-3 flex flex-col items-center justify-center text-center min-h-[90px]">
+                <Camera className="h-5 w-5 text-muted-foreground/40 mb-1.5" />
+                <p className="text-xs font-medium text-foreground leading-tight">{photo.label}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{photo.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Tips */}
+          <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 mb-5">
+            <p className="text-sm font-medium text-foreground mb-2">Photo Tips</p>
+            <ul className="space-y-1.5 text-xs text-muted-foreground">
+              <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Shoot in daylight for the best quality</li>
+              <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Clean your car before taking photos</li>
+              <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Include any damage or wear — honesty builds trust</li>
+              <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Landscape orientation works best for car listings</li>
+            </ul>
+          </div>
+
+          {/* Coming soon notice */}
+          <div className="rounded-lg bg-muted/50 border border-border p-4 text-center">
+            <Camera className="h-6 w-6 text-muted-foreground/40 mx-auto mb-2" />
+            <p className="text-sm font-medium text-foreground">Photo upload coming soon</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              We're working on photo uploads. For now, contact us via WhatsApp to add photos to your listing.
+            </p>
+          </div>
+
+          <div className="mt-6 flex justify-between">
+            <Button variant="outline" onClick={() => setStep(3)} className="gap-1" data-testid="button-step4-back">
+              <ArrowLeft className="h-4 w-4" /> Back
+            </Button>
+            <Button onClick={() => setStep(5)} className="gap-1" data-testid="button-step4-next">
+              Next <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {/* Step 5: Review */}
+      {step === 5 && (
         <Card className="p-6">
           <h2 className="text-base font-semibold text-foreground mb-4">Review Your Listing</h2>
 
@@ -772,7 +864,7 @@ export default function CreateListing() {
           </div>
 
           <div className="mt-6 flex justify-between">
-            <Button variant="outline" onClick={() => setStep(3)} className="gap-1" data-testid="button-step4-back">
+            <Button variant="outline" onClick={() => setStep(4)} className="gap-1" data-testid="button-step5-back">
               <ArrowLeft className="h-4 w-4" /> Back
             </Button>
             <Button

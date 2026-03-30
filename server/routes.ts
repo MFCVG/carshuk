@@ -391,6 +391,67 @@ export async function registerRoutes(
     }
   });
 
+  // ============ VEHICLE HISTORY (NHTSA) ============
+  app.get("/api/vehicle-history/:make/:model/:year", async (req, res) => {
+    try {
+      const { make, model, year } = req.params;
+
+      // Fetch recalls, complaints, and safety ratings in parallel
+      const [recallsRes, complaintsRes, ratingsRes] = await Promise.all([
+        fetch(`https://api.nhtsa.gov/recalls/recallsByVehicle?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&modelYear=${year}`).catch(() => null),
+        fetch(`https://api.nhtsa.gov/complaints/complaintsByVehicle?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&modelYear=${year}`).catch(() => null),
+        fetch(`https://api.nhtsa.gov/SafetyRatings/modelyear/${year}/make/${encodeURIComponent(make)}/model/${encodeURIComponent(model)}`).catch(() => null),
+      ]);
+
+      const recalls = recallsRes ? await recallsRes.json().catch(() => ({ results: [] })) : { results: [] };
+      const complaints = complaintsRes ? await complaintsRes.json().catch(() => ({ results: [] })) : { results: [] };
+      const ratings = ratingsRes ? await ratingsRes.json().catch(() => ({ Results: [] })) : { Results: [] };
+
+      // Fetch detailed safety ratings (requires second API call with VehicleId)
+      let safetyData: any = null;
+      const firstVehicle = ratings.Results?.[0];
+      if (firstVehicle?.VehicleId) {
+        try {
+          const detailRes = await fetch(`https://api.nhtsa.gov/SafetyRatings/VehicleId/${firstVehicle.VehicleId}`);
+          const detailJson = await detailRes.json();
+          if (detailJson.Results?.[0]) {
+            const d = detailJson.Results[0];
+            safetyData = {
+              overallRating: d.OverallRating,
+              frontCrashRating: d.FrontCrashDriversideRating,
+              sideCrashRating: d.SideCrashDriversideRating,
+              rolloverRating: d.RolloverRating,
+              sideBarrierRating: d.SideCrashPassengersideRating,
+              vehicleDescription: d.VehicleDescription,
+            };
+          }
+        } catch {}
+      }
+
+      res.json({
+        recalls: (recalls.results || []).map((r: any) => ({
+          component: r.Component,
+          summary: r.Summary,
+          consequence: r.Consequence,
+          remedy: r.Remedy,
+          reportDate: r.ReportReceivedDate,
+          nhtsaId: r.NHTSACampaignNumber,
+        })),
+        complaints: (complaints.results || []).map((c: any) => ({
+          component: c.components,
+          summary: c.summary,
+          dateOfIncident: c.dateOfIncident,
+          crash: c.crash,
+          fire: c.fire,
+          numberOfInjuries: c.numberOfInjuries,
+        })),
+        safetyRatings: safetyData,
+      });
+    } catch (e: any) {
+      res.status(500).json({ message: "Failed to fetch vehicle history: " + e.message });
+    }
+  });
+
   // ============ AI DESCRIPTION GENERATION ============
   app.post("/api/generate-description", async (req, res) => {
     try {
