@@ -21,7 +21,7 @@ function ListingRow({ listing }: { listing: Listing }) {
   const deal = useMemo(() => getDealRating(listing.price, estimated), [listing.price, estimated]);
 
   return (
-    <Card className="p-4 flex items-center gap-4" data-testid={`card-my-listing-${listing.id}`}>
+    <Card className="p-4 flex items-center gap-4 transition-colors hover:bg-muted/30" data-testid={`card-my-listing-${listing.id}`}>
       <div className="h-16 w-24 shrink-0 rounded-lg bg-gradient-to-br from-primary/10 via-muted to-muted/80 flex items-center justify-center overflow-hidden">
         <Car className="h-7 w-7 text-muted-foreground/25" />
       </div>
@@ -153,15 +153,15 @@ export default function Dashboard() {
 
       {/* Quick stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <Card className="p-4 text-center">
+        <Card className="p-4 text-center bg-gradient-to-br from-primary/5 to-transparent">
           <p className="text-lg font-bold text-foreground">{myListings?.length || 0}</p>
           <p className="text-xs text-muted-foreground">My Listings</p>
         </Card>
-        <Card className="p-4 text-center">
+        <Card className="p-4 text-center bg-gradient-to-br from-primary/5 to-transparent">
           <p className="text-lg font-bold text-foreground">{favorites?.length || 0}</p>
           <p className="text-xs text-muted-foreground">Favorites</p>
         </Card>
-        <Card className="p-4 text-center">
+        <Card className="p-4 text-center bg-gradient-to-br from-primary/5 to-transparent">
           <p className="text-lg font-bold text-foreground">{savedSearches?.length || 0}</p>
           <p className="text-xs text-muted-foreground">Saved Searches</p>
         </Card>

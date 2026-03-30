@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useMemo } from "react";
-import { Heart, MapPin, Car } from "lucide-react";
+import { Heart, MapPin, Car, MessageCircle } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { getDealRating, getMonthlyPayment, formatPrice, formatMiles, estimateMarketValue } from "@/lib/deal-utils";
 import type { Listing } from "@shared/schema";
@@ -19,7 +20,8 @@ export default function ListingCard({ listing }: { listing: Listing }) {
   return (
     <div
       data-testid={`card-listing-${listing.id}`}
-      className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow hover:shadow-md"
+      className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-[1.01] hover:border-l-2"
+      style={{ '--hover-accent': deal.color } as React.CSSProperties}
     >
       {/* Image area — ~55% of card */}
       <div className="relative aspect-[16/10] bg-gradient-to-br from-primary/10 via-muted to-muted/80 flex items-center justify-center overflow-hidden">
@@ -27,10 +29,16 @@ export default function ListingCard({ listing }: { listing: Listing }) {
 
         {/* Deal badge — bottom left */}
         <span
-          className="absolute bottom-2 left-2 inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm"
+          className="absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm"
           style={{ backgroundColor: deal.color }}
           data-testid={`badge-deal-${listing.id}`}
         >
+          {deal.label === "Great Deal" && (
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+            </span>
+          )}
           {deal.label}
         </span>
 
@@ -71,12 +79,12 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         )}
 
         <div className="mt-auto pt-3">
-          <p className="text-lg font-bold text-foreground tabular-nums" data-testid={`text-price-${listing.id}`}>
+          <p className="text-xl font-bold text-foreground tabular-nums" data-testid={`text-price-${listing.id}`}>
             {formatPrice(listing.price)}
           </p>
-          <p className="text-xs text-muted-foreground tabular-nums">
+          <span className="inline-flex items-center mt-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground tabular-nums">
             ${monthly.toLocaleString()}/mo est.
-          </p>
+          </span>
         </div>
 
         <Link href={`/listings/${listing.id}`}>
@@ -88,6 +96,24 @@ export default function ListingCard({ listing }: { listing: Listing }) {
             Check Availability
           </Button>
         </Link>
+
+        {/* WhatsApp / SMS indicators */}
+        {(listing.contactWhatsapp || listing.contactSms) && (
+          <div className="flex items-center gap-2 mt-2">
+            {listing.contactWhatsapp && (
+              <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+                <SiWhatsapp className="h-3 w-3 text-green-500" />
+                WhatsApp
+              </span>
+            )}
+            {listing.contactSms && (
+              <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+                <MessageCircle className="h-3 w-3 text-blue-500" />
+                SMS
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

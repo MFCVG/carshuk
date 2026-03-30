@@ -128,10 +128,23 @@
 @layer base {
   * {
     @apply border-border;
+    transition: color 0.15s, background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+  }
+  html {
+    scroll-behavior: smooth;
   }
   body {
     @apply font-sans antialiased bg-background text-foreground;
   }
+}
+
+/* Premium card hover */
+.premium-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.premium-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 @layer utilities {

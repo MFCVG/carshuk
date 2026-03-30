@@ -50,6 +50,10 @@ export const listings = sqliteTable("listings", {
   status: text("status").default("active"),
   featured: integer("featured", { mode: "boolean" }).default(false),
   views: integer("views").default(0),
+  // Contact preferences
+  contactPhone: text("contact_phone"),
+  contactWhatsapp: integer("contact_whatsapp", { mode: "boolean" }).default(false),
+  contactSms: integer("contact_sms", { mode: "boolean" }).default(true),
   createdAt: text("created_at").notNull().default(""),
 });
 

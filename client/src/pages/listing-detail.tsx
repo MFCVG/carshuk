@@ -14,15 +14,16 @@ import {
 import {
   Car, Heart, MapPin, Gauge, Shield, AlertTriangle,
   CheckCircle2, Phone, ArrowLeft, Eye, Fuel, Cog,
-  Palette, CircleDot, Camera, ChevronLeft, ChevronRight,
+  Palette, CircleDot, Camera, ChevronLeft, ChevronRight, MessageCircle,
 } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
 import type { Listing, PriceEstimate } from "@shared/schema";
 import { useState, useEffect, useMemo } from "react";
 
 function SpecIcon({ icon, label, value }: { icon: JSX.Element; label: string; value: string | number | null | undefined }) {
   if (!value) return null;
   return (
-    <div className="flex flex-col items-center text-center p-3 rounded-lg bg-muted/50">
+    <div className="flex flex-col items-center text-center p-3 rounded-lg bg-muted/50 transition-all duration-200 hover:bg-muted hover:shadow-sm">
       <div className="text-primary mb-1.5">{icon}</div>
       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
       <p className="text-xs font-semibold text-foreground mt-0.5 leading-tight">{value}</p>
@@ -334,9 +335,10 @@ export default function ListingDetail() {
         {/* Right sidebar — 1/3 */}
         <div className="space-y-4">
           {/* Price card */}
-          <Card className="p-5 sticky top-20">
+          <Card className="p-5 sticky top-20 bg-gradient-to-b from-card to-card/80">
             <h1 className="hidden lg:block text-lg font-bold text-foreground leading-tight" data-testid="text-listing-title">
-              {listing.title}
+              <span className="font-normal text-muted-foreground">{listing.year}</span>{" "}
+              {listing.make} {listing.model}
             </h1>
             {listing.city && listing.state && (
               <p className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
@@ -379,10 +381,44 @@ export default function ListingDetail() {
             </div>
 
             <div className="mt-5 space-y-2">
-              <Button className="w-full gap-2" data-testid="button-contact-seller">
-                <Phone className="h-4 w-4" />
-                Contact Seller
-              </Button>
+              {listing.contactPhone && listing.contactWhatsapp && (
+                <a
+                  href={`https://wa.me/1${listing.contactPhone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi, I'm interested in your ${listing.year} ${listing.make} ${listing.model} listed on CarShuk`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full"
+                >
+                  <Button className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white" data-testid="button-whatsapp">
+                    <SiWhatsapp className="h-4 w-4" />
+                    WhatsApp
+                  </Button>
+                </a>
+              )}
+              {listing.contactPhone && listing.contactSms && (
+                <a
+                  href={`sms:+1${listing.contactPhone.replace(/\D/g, "")}?body=${encodeURIComponent(`Hi, I'm interested in your ${listing.year} ${listing.make} ${listing.model} listed on CarShuk`)}`}
+                  className="w-full"
+                >
+                  <Button variant="outline" className="w-full gap-2 border-blue-300 text-blue-600 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-950" data-testid="button-sms">
+                    <MessageCircle className="h-4 w-4" />
+                    Text Message
+                  </Button>
+                </a>
+              )}
+              {listing.contactPhone && (
+                <a href={`tel:+1${listing.contactPhone.replace(/\D/g, "")}`} className="w-full">
+                  <Button variant="outline" className="w-full gap-2" data-testid="button-call-seller">
+                    <Phone className="h-4 w-4" />
+                    Call Seller
+                  </Button>
+                </a>
+              )}
+              {!listing.contactPhone && (
+                <Button className="w-full gap-2" data-testid="button-contact-seller">
+                  <Phone className="h-4 w-4" />
+                  Contact Seller
+                </Button>
+              )}
               <Button
                 variant={isFav ? "default" : "outline"}
                 className="w-full gap-2"
@@ -397,7 +433,7 @@ export default function ListingDetail() {
           </Card>
 
           {/* Seller info */}
-          <Card className="p-5">
+          <Card className="p-5 border border-border/80 bg-gradient-to-b from-card to-card/90">
             <h3 className="text-sm font-semibold text-foreground mb-3">Seller Info</h3>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
@@ -414,6 +450,14 @@ export default function ListingDetail() {
                 )}
               </div>
             </div>
+            {listing.contactPhone && (
+              <div className="mt-3 pt-3 border-t border-border flex items-center gap-2 text-xs text-muted-foreground">
+                <Phone className="h-3 w-3" />
+                <span>{listing.contactPhone}</span>
+                {listing.contactWhatsapp && <SiWhatsapp className="h-3 w-3 text-green-500" />}
+                {listing.contactSms && <MessageCircle className="h-3 w-3 text-blue-500" />}
+              </div>
+            )}
           </Card>
         </div>
       </div>

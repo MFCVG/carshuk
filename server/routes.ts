@@ -343,6 +343,7 @@ export async function registerRoutes(
           condition: "excellent", city: "Brooklyn", state: "NY", zipCode: "11230",
           images: JSON.stringify([]),
           numOwners: 1, accidentHistory: false, titleStatus: "clean", sellerType: "dealer",
+          contactPhone: "7185550202", contactWhatsapp: true, contactSms: true,
         },
         {
           userId: seller1.id, vin: "5YFBURHE1KP862341", title: "2021 Honda Accord Sport",
@@ -353,6 +354,7 @@ export async function registerRoutes(
           condition: "good", city: "Lakewood", state: "NJ", zipCode: "08701",
           images: JSON.stringify([]),
           numOwners: 1, accidentHistory: false, titleStatus: "clean", sellerType: "private",
+          contactPhone: "7185550101", contactWhatsapp: true, contactSms: false,
         },
         {
           userId: dealer1.id, vin: "WBA5B1C50KD123456", title: "2024 BMW X3 xDrive30i",
@@ -363,6 +365,7 @@ export async function registerRoutes(
           condition: "excellent", city: "Brooklyn", state: "NY", zipCode: "11219",
           images: JSON.stringify([]),
           numOwners: 1, accidentHistory: false, titleStatus: "clean", sellerType: "dealer",
+          contactPhone: "7185550202", contactWhatsapp: true, contactSms: true,
         },
         {
           userId: seller2.id, vin: "1N4BL4BV4KC178234", title: "2020 Toyota Sienna LE",
@@ -373,6 +376,7 @@ export async function registerRoutes(
           condition: "good", city: "Monsey", state: "NY", zipCode: "10952",
           images: JSON.stringify([]),
           numOwners: 2, accidentHistory: false, titleStatus: "clean", sellerType: "private",
+          contactPhone: "8455550303", contactWhatsapp: false, contactSms: true,
         },
         {
           userId: dealer2.id, vin: "JTDKN3DU5A5012345", title: "2025 Tesla Model Y Long Range",
@@ -383,6 +387,7 @@ export async function registerRoutes(
           condition: "excellent", city: "Lakewood", state: "NJ", zipCode: "08701",
           images: JSON.stringify([]),
           numOwners: 1, accidentHistory: false, titleStatus: "clean", sellerType: "dealer",
+          contactPhone: "7325550404", contactWhatsapp: true, contactSms: true,
         },
         {
           userId: seller1.id, vin: "1C4RJFAG9KC765432", title: "2019 Jeep Grand Cherokee Limited",
@@ -393,6 +398,7 @@ export async function registerRoutes(
           condition: "good", city: "Passaic", state: "NJ", zipCode: "07055",
           images: JSON.stringify([]),
           numOwners: 2, accidentHistory: false, titleStatus: "clean", sellerType: "private",
+          contactPhone: "7185550101", contactWhatsapp: false, contactSms: true,
         },
         {
           userId: dealer1.id, vin: "5UXCR6C08K9K98765", title: "2022 Mercedes-Benz GLE 350",
@@ -403,6 +409,7 @@ export async function registerRoutes(
           condition: "excellent", city: "Brooklyn", state: "NY", zipCode: "11204",
           images: JSON.stringify([]),
           numOwners: 1, accidentHistory: false, titleStatus: "clean", sellerType: "dealer",
+          contactPhone: "7185550202", contactWhatsapp: true, contactSms: true,
         },
         {
           userId: seller2.id, vin: "4T1BF1FK5HU345678", title: "2020 Hyundai Tucson SEL",
@@ -413,6 +420,7 @@ export async function registerRoutes(
           condition: "good", city: "Five Towns", state: "NY", zipCode: "11516",
           images: JSON.stringify([]),
           numOwners: 1, accidentHistory: false, titleStatus: "clean", sellerType: "private",
+          contactPhone: "8455550303", contactWhatsapp: true, contactSms: true,
         },
         {
           userId: dealer2.id, vin: "1FMCU0GD8LUA23456", title: "2021 Ford Explorer XLT",
@@ -423,6 +431,7 @@ export async function registerRoutes(
           condition: "good", city: "Lakewood", state: "NJ", zipCode: "08701",
           images: JSON.stringify([]),
           numOwners: 1, accidentHistory: false, titleStatus: "clean", sellerType: "dealer",
+          contactPhone: "7325550404", contactWhatsapp: true, contactSms: true,
         },
         {
           userId: seller1.id, vin: "KNDJP3A53K7654321", title: "2018 Lexus RX 350",
@@ -433,6 +442,7 @@ export async function registerRoutes(
           condition: "good", city: "Monsey", state: "NY", zipCode: "10952",
           images: JSON.stringify([]),
           numOwners: 2, accidentHistory: false, titleStatus: "clean", sellerType: "private",
+          contactPhone: "7185550101", contactWhatsapp: true, contactSms: false,
         },
         {
           userId: dealer1.id, vin: "WA1LAAF70KD234567", title: "2023 Audi Q5 Premium Plus",
@@ -443,6 +453,7 @@ export async function registerRoutes(
           condition: "excellent", city: "Brooklyn", state: "NY", zipCode: "11230",
           images: JSON.stringify([]),
           numOwners: 1, accidentHistory: false, titleStatus: "clean", sellerType: "dealer",
+          contactPhone: "7185550202", contactWhatsapp: true, contactSms: true,
         },
         {
           userId: seller2.id, vin: "5TDYZ3DC0LS654321", title: "2022 Toyota Highlander XLE",
@@ -453,6 +464,7 @@ export async function registerRoutes(
           condition: "excellent", city: "Passaic", state: "NJ", zipCode: "07055",
           images: JSON.stringify([]),
           numOwners: 1, accidentHistory: false, titleStatus: "clean", sellerType: "private",
+          contactPhone: "8455550303", contactWhatsapp: false, contactSms: true,
         },
       ];
 

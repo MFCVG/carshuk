@@ -80,6 +80,7 @@ interface FormData {
   city: string; state: string; zipCode: string;
   numOwners: string; accidentHistory: boolean; titleStatus: string;
   sellerType: string;
+  contactPhone: string; contactWhatsapp: boolean; contactSms: boolean;
 }
 
 const defaultForm: FormData = {
@@ -88,6 +89,7 @@ const defaultForm: FormData = {
   price: "", mileage: "", condition: "used", description: "",
   city: "", state: "", zipCode: "", numOwners: "1", accidentHistory: false,
   titleStatus: "clean", sellerType: "private",
+  contactPhone: "", contactWhatsapp: false, contactSms: true,
 };
 
 function Stepper({ step, steps }: { step: number; steps: string[] }) {
@@ -301,7 +303,11 @@ export default function CreateListing() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState<FormData>(defaultForm);
+  const [form, setForm] = useState<FormData>(() => ({
+    ...defaultForm,
+    contactPhone: user?.phone?.replace(/\D/g, "") || "",
+    sellerType: user?.isDealer ? "dealer" : "private",
+  }));
   const [vinDecoded, setVinDecoded] = useState(false);
   const [vinData, setVinData] = useState<VinDecodeResult | null>(null);
   const [priceEstimate, setPriceEstimate] = useState<PriceEstimate | null>(null);
@@ -386,6 +392,9 @@ export default function CreateListing() {
         accidentHistory: form.accidentHistory,
         titleStatus: form.titleStatus,
         sellerType: form.sellerType,
+        contactPhone: form.contactPhone || null,
+        contactWhatsapp: form.contactWhatsapp,
+        contactSms: form.contactSms,
         images: "[]",
       });
       return res.json();
@@ -593,6 +602,43 @@ export default function CreateListing() {
                   data-testid="switch-accidents"
                 />
                 <Label className="text-sm">Accident history</Label>
+              </div>
+            </div>
+          </div>
+
+          <Separator className="my-5" />
+          <h3 className="text-sm font-semibold text-foreground mb-1">Contact Preferences</h3>
+          <p className="text-xs text-muted-foreground mb-3">Buyers will see WhatsApp and/or text message buttons based on your preference.</p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormField label="Phone Number">
+              <Input
+                type="tel"
+                value={form.contactPhone}
+                onChange={(e) => set("contactPhone")(e.target.value)}
+                placeholder="e.g. 7185551234"
+                data-testid="input-contact-phone"
+              />
+            </FormField>
+            <div className="space-y-3 sm:pt-6">
+              <div className="flex items-center justify-between rounded-md border border-border p-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-foreground">Available on WhatsApp</span>
+                </div>
+                <Switch
+                  checked={form.contactWhatsapp}
+                  onCheckedChange={(v) => set("contactWhatsapp")(v)}
+                  data-testid="switch-whatsapp"
+                />
+              </div>
+              <div className="flex items-center justify-between rounded-md border border-border p-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-foreground">Available via SMS/Text</span>
+                </div>
+                <Switch
+                  checked={form.contactSms}
+                  onCheckedChange={(v) => set("contactSms")(v)}
+                  data-testid="switch-sms"
+                />
               </div>
             </div>
           </div>

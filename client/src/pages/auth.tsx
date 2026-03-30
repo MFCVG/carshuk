@@ -59,11 +59,11 @@ export default function Auth() {
   return (
     <div className="mx-auto max-w-md px-4 py-12 sm:px-6">
       <div className="text-center mb-6">
-        <h1 className="text-xl font-bold text-foreground" data-testid="text-auth-title">Welcome to CarShuk</h1>
+        <h1 className="text-xl font-bold text-foreground" data-testid="text-auth-title">Welcome to <span className="text-primary">CarShuk</span></h1>
         <p className="text-sm text-muted-foreground mt-1">Sign in or create an account to get started.</p>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-6 shadow-lg border-t-2 border-t-primary/60">
         <Tabs defaultValue="signin">
           <TabsList className="grid w-full grid-cols-2 mb-5">
             <TabsTrigger value="signin" data-testid="tab-signin">Sign In</TabsTrigger>

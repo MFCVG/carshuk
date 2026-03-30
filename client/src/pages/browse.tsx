@@ -442,7 +442,7 @@ export default function BrowseListings() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
         <div className="flex items-center gap-3 flex-1">
           <h1 className="text-base font-bold text-foreground whitespace-nowrap" data-testid="text-result-count">
-            {sortedListings.length} {sortedListings.length === 1 ? "vehicle" : "vehicles"} found
+            Showing {sortedListings.length} {sortedListings.length === 1 ? "vehicle" : "vehicles"}
           </h1>
           <div className="relative flex-1 max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -522,7 +522,7 @@ export default function BrowseListings() {
       <div className="flex gap-6">
         {/* Desktop sidebar */}
         <aside className="hidden lg:block w-56 shrink-0">
-          <div className="sticky top-20 overflow-y-auto max-h-[calc(100vh-6rem)] pb-8 pr-2">
+          <div className="sticky top-20 overflow-y-auto max-h-[calc(100vh-6rem)] pb-8 pr-2 rounded-lg bg-card/50 backdrop-blur-sm p-3 shadow-sm border border-border/50">
             <FilterSidebar filters={filters} setFilters={setFilters} onReset={resetFilters} />
           </div>
         </aside>
@@ -541,9 +541,12 @@ export default function BrowseListings() {
             </div>
           ) : sortedListings.length === 0 ? (
             <div className="text-center py-16">
-              <Car className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">No listings match your filters.</p>
-              <Button variant="link" onClick={resetFilters} className="mt-2 text-primary" data-testid="button-clear-filters">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                <Car className="h-8 w-8 text-muted-foreground/40" />
+              </div>
+              <p className="text-sm font-medium text-foreground">No vehicles found</p>
+              <p className="text-xs text-muted-foreground mt-1">Try adjusting your filters or broadening your search.</p>
+              <Button variant="link" onClick={resetFilters} className="mt-3 text-primary" data-testid="button-clear-filters">
                 Clear all filters
               </Button>
             </div>

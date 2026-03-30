@@ -48,8 +48,9 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-teal-700 dark:from-primary/90 dark:via-primary/80 dark:to-teal-800 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.08),transparent_60%)]" />
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/95 to-teal-700 dark:from-primary/90 dark:via-primary/75 dark:to-teal-900 text-white">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.12),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(0,0,0,0.15),transparent_50%)]" />
         <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="max-w-2xl">
             <h1 className="text-xl font-bold leading-tight sm:text-xl" data-testid="text-hero-title">
@@ -86,7 +87,7 @@ export default function HomePage() {
               <Button
                 onClick={handleSearch}
                 size="lg"
-                className="h-11 font-semibold gap-2"
+                className="h-11 font-semibold gap-2 animate-pulse hover:animate-none"
                 data-testid="button-hero-search"
               >
                 <Search className="h-4 w-4" />
@@ -100,25 +101,25 @@ export default function HomePage() {
       {/* Stat counters */}
       <section className="border-b border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6">
-          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-16 text-center">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center divide-x divide-border text-center">
+            <div className="flex items-center gap-2 px-8 sm:px-12">
               <Car className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-base font-bold text-foreground" data-testid="stat-listings">500+</p>
+                <p className="text-lg font-bold text-foreground tabular-nums" data-testid="stat-listings">500+</p>
                 <p className="text-xs text-muted-foreground">Active Listings</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-8 sm:px-12">
               <ShieldCheck className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-base font-bold text-foreground" data-testid="stat-dealers">200+</p>
+                <p className="text-lg font-bold text-foreground tabular-nums" data-testid="stat-dealers">200+</p>
                 <p className="text-xs text-muted-foreground">Verified Dealers</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-8 sm:px-12">
               <Star className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-base font-bold text-foreground" data-testid="stat-rating">4.9★</p>
+                <p className="text-lg font-bold text-foreground tabular-nums" data-testid="stat-rating">4.9</p>
                 <p className="text-xs text-muted-foreground">Community Rating</p>
               </div>
             </div>
@@ -224,7 +225,7 @@ export default function HomePage() {
             <Link key={loc.name} href={`/browse?city=${encodeURIComponent(loc.name)}`}>
               <div
                 data-testid={`card-location-${loc.name.toLowerCase().replace(/\s/g, "-")}`}
-                className="group rounded-lg border border-border p-4 transition-all hover:border-primary/40 hover:shadow-sm cursor-pointer"
+                className="group rounded-lg border border-border p-4 transition-all duration-300 hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-primary shrink-0" />
@@ -247,7 +248,7 @@ export default function HomePage() {
             {steps.map((s, i) => (
               <div key={s.step} className="flex gap-4">
                 <div className="flex flex-col items-center">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-md ring-4 ring-primary/10">
                     {s.step}
                   </div>
                   {i < steps.length - 1 && (
@@ -266,16 +267,16 @@ export default function HomePage() {
 
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
-        <div className="rounded-xl bg-primary/5 border border-primary/15 p-8 sm:p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div className="rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/15 p-8 sm:p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div>
             <h2 className="text-lg font-bold text-foreground">Ready to sell your car?</h2>
             <p className="mt-1 text-sm text-muted-foreground max-w-md">
-              List your vehicle in minutes. Enter your VIN, set your price, and connect with buyers in your area.
+              List it in minutes. Enter your VIN, set your price, and connect with buyers in your area.
             </p>
           </div>
           <div className="flex gap-3 shrink-0">
             <Link href="/sell">
-              <Button data-testid="button-cta-sell" className="gap-2">
+              <Button data-testid="button-cta-sell" className="gap-2 shadow-md">
                 Sell My Car <ChevronRight className="h-4 w-4" />
               </Button>
             </Link>

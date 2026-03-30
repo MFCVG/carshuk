@@ -60,19 +60,19 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-6">
           <CarShukLogo />
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav className="hidden items-center gap-2 md:flex">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href}>
                 <span
                   data-testid={`link-nav-${link.label.toLowerCase().replace(/\s/g, "-")}`}
-                  className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  className={`relative inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors after:absolute after:bottom-0 after:left-3 after:right-3 after:h-[2px] after:bg-primary after:rounded-full after:transition-transform after:duration-200 ${
                     location === link.href
-                      ? "text-primary bg-primary/8"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      ? "text-primary bg-primary/8 after:scale-x-100"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted after:scale-x-0 hover:after:scale-x-100"
                   }`}
                 >
                   {link.label}
