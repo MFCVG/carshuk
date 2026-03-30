@@ -275,48 +275,20 @@ export default function ListingDetail() {
             <TabsContent value="history">
               <Card className="p-5">
                 <h3 className="text-sm font-semibold text-foreground mb-3">Vehicle History</h3>
-                {listing.vin && (
+                {listing.vin ? (
                   <div className="rounded-md bg-muted p-3 mb-4">
                     <p className="text-xs text-muted-foreground">VIN</p>
                     <p className="text-sm font-mono font-medium text-foreground tracking-wide" data-testid="text-vin">
                       {listing.vin}
                     </p>
                   </div>
-                )}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-                      <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Owners</p>
-                      <p className="text-xs text-muted-foreground">{listing.numOwners ?? "—"} previous owner(s)</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                    <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                      listing.accidentHistory ? "bg-red-100 dark:bg-red-900/30" : "bg-emerald-100 dark:bg-emerald-900/30"
-                    }`}>
-                      {listing.accidentHistory ? (
-                        <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
-                      ) : (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Accidents</p>
-                      <p className="text-xs text-muted-foreground">{listing.accidentHistory ? "Accidents reported" : "No accidents reported"}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-                      <Shield className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Title Status</p>
-                      <p className="text-xs text-muted-foreground capitalize">{listing.titleStatus || "Clean"}</p>
-                    </div>
-                  </div>
+                ) : null}
+                <div className="rounded-lg border border-border bg-muted/30 p-6 text-center">
+                  <Shield className="h-8 w-8 text-muted-foreground/40 mx-auto mb-3" />
+                  <p className="text-sm font-medium text-foreground">Vehicle history not available</p>
+                  <p className="text-xs text-muted-foreground mt-1.5 max-w-sm mx-auto leading-relaxed">
+                    We recommend requesting a vehicle history report from the seller or running the VIN through a service like Carfax or AutoCheck before purchasing.
+                  </p>
                 </div>
               </Card>
             </TabsContent>
@@ -416,65 +388,70 @@ export default function ListingDetail() {
             </div>
 
             <div className="mt-5 space-y-2">
-              {/* Primary CTA — Check Availability */}
-              <Button
-                className="w-full gap-2 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
-                data-testid="button-check-availability"
-              >
-                Check Availability
-              </Button>
-              {listing.contactPhone && listing.contactWhatsapp && (
-                <a
-                  href={`https://wa.me/1${listing.contactPhone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi, I'm interested in your ${listing.year} ${listing.make} ${listing.model} listed on CarShuk`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full"
-                >
+              {user ? (
+                <>
+                  {/* Logged in — show contact buttons */}
+                  {listing.contactPhone && listing.contactWhatsapp && (
+                    <a
+                      href={`https://wa.me/1${listing.contactPhone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi, I'm interested in your ${listing.year} ${listing.make} ${listing.model} listed on CarShuk`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full"
+                    >
+                      <Button
+                        className="w-full gap-2 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white font-semibold"
+                        data-testid="button-whatsapp"
+                      >
+                        <SiWhatsapp className="h-4 w-4" />
+                        WhatsApp Seller
+                      </Button>
+                    </a>
+                  )}
+                  {listing.contactPhone && listing.contactSms && (
+                    <a
+                      href={`sms:+1${listing.contactPhone.replace(/\D/g, "")}?body=${encodeURIComponent(`Hi, I'm interested in your ${listing.year} ${listing.make} ${listing.model} listed on CarShuk`)}`}
+                      className="w-full"
+                    >
+                      <Button variant="outline" className="w-full gap-2 rounded-full" data-testid="button-sms">
+                        <MessageCircle className="h-4 w-4" />
+                        Text Message
+                      </Button>
+                    </a>
+                  )}
+                  {listing.contactPhone && (
+                    <a href={`tel:+1${listing.contactPhone.replace(/\D/g, "")}`} className="w-full">
+                      <Button variant="outline" className="w-full gap-2 rounded-full" data-testid="button-call-seller">
+                        <Phone className="h-4 w-4" />
+                        Call Seller
+                      </Button>
+                    </a>
+                  )}
                   <Button
-                    variant="outline"
-                    className="w-full gap-2 border-green-600 text-green-700 hover:bg-green-50 dark:border-green-500 dark:text-green-400 dark:hover:bg-green-950"
-                    data-testid="button-whatsapp"
+                    variant="ghost"
+                    className="w-full gap-2 border border-border rounded-full"
+                    onClick={() => favMut.mutate()}
+                    disabled={favMut.isPending}
+                    data-testid="button-favorite"
                   >
-                    <SiWhatsapp className="h-4 w-4" />
-                    WhatsApp
+                    <Heart className={`h-4 w-4 ${isFav ? "fill-current text-primary" : ""}`} />
+                    {isFav ? "Saved" : "Save"}
                   </Button>
-                </a>
+                </>
+              ) : (
+                <>
+                  {/* Not logged in — prompt to sign in */}
+                  <div className="rounded-xl border border-border bg-muted/30 p-5 text-center">
+                    <Phone className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm font-semibold text-foreground">Sign in to contact seller</p>
+                    <p className="text-xs text-muted-foreground mt-1">Create a free account to see phone numbers, WhatsApp, and message sellers directly.</p>
+                    <Link href="/auth">
+                      <Button className="mt-3 w-full rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold gap-2" data-testid="button-signin-to-contact">
+                        Sign In to Contact
+                      </Button>
+                    </Link>
+                  </div>
+                </>
               )}
-              {listing.contactPhone && listing.contactSms && (
-                <a
-                  href={`sms:+1${listing.contactPhone.replace(/\D/g, "")}?body=${encodeURIComponent(`Hi, I'm interested in your ${listing.year} ${listing.make} ${listing.model} listed on CarShuk`)}`}
-                  className="w-full"
-                >
-                  <Button variant="outline" className="w-full gap-2" data-testid="button-sms">
-                    <MessageCircle className="h-4 w-4" />
-                    Text Message
-                  </Button>
-                </a>
-              )}
-              {listing.contactPhone && (
-                <a href={`tel:+1${listing.contactPhone.replace(/\D/g, "")}`} className="w-full">
-                  <Button variant="outline" className="w-full gap-2" data-testid="button-call-seller">
-                    <Phone className="h-4 w-4" />
-                    Call Seller
-                  </Button>
-                </a>
-              )}
-              {!listing.contactPhone && (
-                <Button variant="outline" className="w-full gap-2" data-testid="button-contact-seller">
-                  <Phone className="h-4 w-4" />
-                  Contact Seller
-                </Button>
-              )}
-              <Button
-                variant="ghost"
-                className="w-full gap-2 border border-border"
-                onClick={() => favMut.mutate()}
-                disabled={favMut.isPending}
-                data-testid="button-favorite"
-              >
-                <Heart className={`h-4 w-4 ${isFav ? "fill-current text-primary" : ""}`} />
-                {isFav ? "Saved" : "Save"}
-              </Button>
             </div>
           </Card>
 
@@ -496,14 +473,16 @@ export default function ListingDetail() {
                 )}
               </div>
             </div>
-            {listing.contactPhone && (
+            {user && listing.contactPhone ? (
               <div className="mt-3 pt-3 border-t border-border flex items-center gap-2 text-xs text-muted-foreground">
                 <Phone className="h-3 w-3" />
                 <span>{listing.contactPhone}</span>
                 {listing.contactWhatsapp && <SiWhatsapp className="h-3 w-3 text-green-500" />}
                 {listing.contactSms && <MessageCircle className="h-3 w-3 text-blue-500" />}
               </div>
-            )}
+            ) : !user ? (
+              <p className="mt-3 pt-3 border-t border-border text-xs text-muted-foreground">Sign in to see contact details</p>
+            ) : null}
           </Card>
         </div>
       </div>
