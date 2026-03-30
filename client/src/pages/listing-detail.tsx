@@ -70,6 +70,7 @@ export default function ListingDetail() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isFav, setIsFav] = useState(false);
+  const [currentImageIdx, setCurrentImageIdx] = useState(0);
 
   const { data: listing, isLoading } = useQuery<Listing>({
     queryKey: ["/api/listings", id],
@@ -112,6 +113,13 @@ export default function ListingDetail() {
   }, [listing, estimate]);
 
   const monthly = useMemo(() => listing ? getMonthlyPayment(listing.price) : 0, [listing]);
+
+  const images: string[] = useMemo(() => {
+    try {
+      const parsed = JSON.parse(listing?.images || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch { return []; }
+  }, [listing?.images]);
 
   const favMut = useMutation({
     mutationFn: async () => {
@@ -167,21 +175,39 @@ export default function ListingDetail() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left column — 2/3 */}
         <div className="lg:col-span-2 space-y-5">
-          {/* Image gallery placeholder */}
+          {/* Image gallery */}
           <div className="relative aspect-[16/9] rounded-xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden">
-            <Car className="h-20 w-20 text-muted-foreground/30" />
+            {images.length > 0 ? (
+              <img
+                src={images[currentImageIdx]}
+                alt={`${listing.year} ${listing.make} ${listing.model}`}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <Car className="h-20 w-20 text-muted-foreground/30" />
+            )}
             {/* Photo count badge */}
             <div className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-md bg-black/50 backdrop-blur-sm px-2.5 py-1 text-xs text-white">
               <Camera className="h-3.5 w-3.5" />
-              0 Photos
+              {images.length} Photo{images.length !== 1 ? "s" : ""}
             </div>
             {/* Nav arrows */}
-            <button className="absolute left-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50">
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50">
-              <ChevronRight className="h-4 w-4" />
-            </button>
+            {images.length > 1 && (
+              <>
+                <button
+                  className="absolute left-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50"
+                  onClick={() => setCurrentImageIdx((prev) => (prev - 1 + images.length) % images.length)}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <button
+                  className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50"
+                  onClick={() => setCurrentImageIdx((prev) => (prev + 1) % images.length)}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </>
+            )}
           </div>
 
           {/* Title (mobile) */}

@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { useMemo } from "react";
-import { Heart, Car, MessageCircle, MapPin } from "lucide-react";
+import { Heart, Car, MessageCircle, MapPin, ImageIcon } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { getDealRating, getMonthlyPayment, formatPrice, formatMiles, estimateMarketValue } from "@/lib/deal-utils";
@@ -28,6 +28,14 @@ export default function ListingCard({ listing }: { listing: Listing }) {
 
   const dotColor = dealDotColors[deal.label] ?? "#6B7280";
 
+  // Parse images JSON string
+  const images: string[] = useMemo(() => {
+    try {
+      const parsed = JSON.parse(listing.images || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch { return []; }
+  }, [listing.images]);
+
   return (
     <Link href={`/listings/${listing.id}`}>
       <div
@@ -36,7 +44,16 @@ export default function ListingCard({ listing }: { listing: Listing }) {
       >
         {/* Image area — 16:10 aspect ratio */}
         <div className="relative aspect-[16/10] bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden">
-          <Car className="h-10 w-10 text-muted-foreground/30" />
+          {images.length > 0 ? (
+            <img
+              src={images[0]}
+              alt={`${listing.year} ${listing.make} ${listing.model}`}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              loading="lazy"
+            />
+          ) : (
+            <Car className="h-10 w-10 text-muted-foreground/30" />
+          )}
 
           {/* Favorite heart — top-right */}
           <button
