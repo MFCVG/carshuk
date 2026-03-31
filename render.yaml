@@ -2,11 +2,9 @@ services:
   - type: web
     runtime: node
     name: carshuk
-    repo: https://github.com/MFCVG/carshuk
+    plan: free
     buildCommand: npm install && npm run build
     startCommand: NODE_ENV=production node dist/index.cjs
     envVars:
       - key: NODE_ENV
         value: production
-    plan: free
-    region: oregon
